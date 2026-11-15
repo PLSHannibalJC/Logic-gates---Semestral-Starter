@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A self-paced, six-tier digital logic practice quiz with 300 questions, explanations, progress tracking, and review sessions.">
+    <title>LogicGround | Digital Logic Practice</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    keyframes: {
+                        popIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.96) translateY(8px)' },
+                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(14px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '20%, 60%': { transform: 'translateX(-6px)' },
+                            '40%, 80%': { transform: 'translateX(6px)' }
+                        }
+                    },
+                    animation: {
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'slide-up': 'slideUp 0.28s ease-out forwards',
+                        'shake': 'shake 0.38s ease-in-out'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            background-image:
+                radial-gradient(circle at 12% 10%, rgba(124, 58, 237, 0.16) 0%, transparent 42%),
+                radial-gradient(circle at 88% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 45%);
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .tile-btn {
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease, opacity 0.2s ease;
+        }
+        .tile-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+        .tile-btn:not(:disabled):active {
+            transform: translateY(3px);
+        }
+        .tile-0 { background-color: #2563eb; box-shadow: 0 5px 0 #1d4ed8; }
+        .tile-1 { background-color: #0891b2; box-shadow: 0 5px 0 #0e7490; }
+        .tile-2 { background-color: #d97706; box-shadow: 0 5px 0 #b45309; }
+        .tile-3 { background-color: #db2777; box-shadow: 0 5px 0 #be185d; }
+
+        .tile-correct {
+            background-color: #059669 !important;
+            box-shadow: 0 5px 0 #047857 !important;
+            outline: 3px solid #6ee7b7;
+        }
+        .tile-wrong {
+            background-color: #e11d48 !important;
+            box-shadow: 0 5px 0 #be123c !important;
+            outline: 3px solid #fda4af;
+        }
+        .tile-dimmed {
+            opacity: 0.4;
+            transform: scale(0.985);
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-violet-500 selection:text-white">
+
+    <!-- Persistent Top Header -->
+    <header class="sticky top-0 z-30 bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <button onclick="goToHub()" class="flex items-center gap-3 text-left group cursor-pointer" title="Return to Tier Curriculum Hub">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-900/40 font-mono font-black text-base text-white border border-violet-400/30 group-hover:scale-105 transition">
+                        &amp;1
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-base sm:text-lg tracking-tight text-white">LogicGround</span>
+                            <span id="header-total-badge" class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                                300 Questions • 6 Tiers
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400">
+                            <span class="text-emerald-400 font-semibold">∞ Self-Paced • No Timer</span>
+                            <span class="hidden sm:inline">• AL 103 • Logic Design Review</span>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <button id="nav-hub-btn" onclick="goToHub()" class="hidden px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs sm:text-sm font-semibold text-slate-200 transition cursor-pointer">
+                    ← Tiers Hub
+                </button>
+
+                <div class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-amber-300" title="Current Correct Streak">
+                    <span>🔥</span>
+                    <span id="streak-count">0</span>
+                </div>
+
+                <button onclick="openMissedModal(null)" class="flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-100 transition cursor-pointer" title="Inspect or Re-Answer Missed Questions">
+                    <span class="text-rose-400 font-black">↺</span>
+                    <span class="hidden sm:inline">Missed</span>
+                    <span id="global-missed-count" class="px-2 py-0.5 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-300 border border-rose-500/30">0</span>
+                </button>
+
+                <button id="unlock-all-toggle-btn" onclick="togglePreviewUnlockAll()" class="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 transition cursor-pointer" title="Toggle unlocking all 6 tiers immediately for previewing">
+                    🔓 <span class="hidden md:inline" id="unlock-toggle-label">Preview Unlock: OFF</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto mt-2.5">
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span id="header-context-label" class="font-semibold text-violet-300">Curriculum Overview • 6 Progressive Tiers</span>
+                <span id="global-mastery-text" class="font-mono font-bold text-slate-200">0 / 300 Mastered (0%)</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700/80">
+                <div id="global-mastery-bar" class="h-full bg-gradient-to-r from-violet-500 via-cyan-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main View Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 sm:px-6 sm:py-8">
+
+        <!-- VIEW 1: TIER PROGRESSION HUB -->
+        <section id="hub-view" class="space-y-6 animate-pop-in">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2.5 max-w-2xl">
+                    <div class="inline-flex flex-wrap items-center gap-2">
+                        <span class="px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 text-xs font-extrabold uppercase tracking-wider">
+                            🎓 Logic Design Practice
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold">
+                            300 Practice Questions (50/Tier)
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                            No Timer • Self-Paced
+                        </span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white">
+                        Build Your Digital Logic Skills, Tier by Tier
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                        Progress from basic AND/OR/NOT gates up to Full Adders and Multiplexers. Score <strong class="text-emerald-400">70% or higher</strong> (35/50 correct) in each Tier to unlock the next level—with step-by-step explanations after every choice and unlimited re-answering on missed questions.
+                    </p>
+                </div>
+
+                <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 flex flex-col gap-3 shrink-0 min-w-[250px]">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+                        <span>UNLOCK THRESHOLD</span>
+                        <span class="text-emerald-400 font-mono">≥ 70% (35/50)</span>
+                    </div>
+                    <button id="hub-retry-all-missed-btn" onclick="startGlobalMissedSession()" class="hidden w-full px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs sm:text-sm shadow-[0_4px_0_#9f1239] active:translate-y-0.5 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span>↺</span>
+                        <span id="hub-retry-all-label">Re-Answer All Missed (0)</span>
+                    </button>
+                    <button onclick="openResetConfirmModal()" class="w-full px-4 py-2.5 rounded-xl bg-slate-700/70 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition cursor-pointer">
+                        Reset All Saved Progress
+                    </button>
+                </div>
+            </div>
+
+            <div id="tiers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- VIEW 2: ACTIVE QUIZ ARENA -->
+        <section id="quiz-view" class="hidden max-w-4xl mx-auto space-y-5">
+            <div id="session-banner" class="bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span id="session-tier-pill" class="px-3 py-1 rounded-xl bg-violet-500/20 border border-violet-500/30 text-violet-300 text-xs font-extrabold">
+                        Tier 1
+                    </span>
+                    <span id="session-mode-text" class="text-xs sm:text-sm font-semibold text-slate-200">
+                        Foundations &amp; Basic Gates
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="session-switch-missed-btn" onclick="openMissedModal(state.activeTierId)" class="hidden px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-bold transition cursor-pointer">
+                        ↺ Tier Missed (<span id="session-tier-missed-count">0</span>)
+                    </button>
+                    <button onclick="goToHub()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition cursor-pointer">
+                        Save &amp; Exit to Hub
+                    </button>
+                </div>
+            </div>
+
+            <div id="question-card" class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-2xl">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span id="q-counter-badge" class="px-3 py-1 rounded-xl bg-slate-800 border border-slate-700 text-cyan-300 font-mono text-xs font-bold">
+                            Question 1 of 50
+                        </span>
+                        <span id="q-subtopic-badge" class="px-3 py-1 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                            Basic Gates
+                        </span>
+                        <span id="q-id-badge" class="px-2.5 py-1 rounded-xl bg-slate-800/70 text-slate-400 font-mono text-xs">
+                            #1
+                        </span>
+                    </div>
+                    <span id="q-status-pill" class="px-3 py-1 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold">
+                        Self-Paced • Choose an Answer
+                    </span>
+                </div>
+
+                <h2 id="q-prompt" class="text-lg sm:text-2xl font-bold text-white leading-snug mb-5"></h2>
+
+                <div id="q-diagram-box" class="hidden mb-6 bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-center">
+                    <div id="q-diagram-svg" class="w-full max-w-md flex justify-center"></div>
+                    <p id="q-diagram-caption" class="text-xs text-slate-400 mt-2 font-mono text-center"></p>
+                </div>
+
+                <div id="q-options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4"></div>
+
+                <p class="text-[11px] text-slate-500 mt-4 text-right hidden sm:block">
+                    Keyboard Shortcuts: Press <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">1–4</kbd> or <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">A–D</kbd> to answer • <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">Enter</kbd> to continue
+                </p>
+            </div>
+
+            <div id="explanation-panel" class="hidden rounded-3xl p-5 sm:p-7 border shadow-2xl animate-slide-up">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
+                    <div class="flex items-center gap-3">
+                        <div id="fb-icon" class="w-11 h-11 rounded-2xl flex items-center justify-center text-xl font-black shrink-0"></div>
+                        <div>
+                            <h3 id="fb-title" class="font-extrabold text-lg"></h3>
+                            <p id="fb-subtitle" class="text-xs opacity-90"></p>
+                        </div>
+                    </div>
+
+                    <button id="continue-btn" onclick="handleContinueNext()" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white text-slate-950 hover:bg-slate-100 font-extrabold text-sm sm:text-base shadow-[0_4px_0_rgba(0,0,0,0.3)] active:translate-y-0.5 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span id="continue-btn-label">Continue to Next Question</span>
+                        <span>→</span>
+                    </button>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/15">
+                    <div class="text-xs font-extrabold uppercase tracking-wider opacity-80 mb-1.5 flex items-center gap-1.5">
+                        <span>📘</span>
+                        <span>Detailed Truth-Logic &amp; Boolean Breakdown</span>
+                    </div>
+                    <p id="fb-explanation-text" class="text-sm sm:text-base leading-relaxed text-white/95"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: TIER SUMMARY SCREEN -->
+        <section id="summary-view" class="hidden max-w-4xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-9 shadow-2xl animate-pop-in space-y-6">
+            <div id="tier-unlock-celebration" class="hidden bg-gradient-to-r from-emerald-900/70 via-teal-900/70 to-cyan-900/70 border border-emerald-500/40 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center text-2xl font-black shrink-0">
+                        🔓
+                    </div>
+                    <div>
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">New Tier Unlocked!</span>
+                        <h3 id="unlocked-tier-title" class="text-lg sm:text-xl font-black text-white">Tier 2: Universal Gates</h3>
+                        <p class="text-xs text-emerald-100/85">You crossed the 70% mastery threshold (35/50 correct). Ready for the next challenge whenever you are!</p>
+                    </div>
+                </div>
+                <button id="start-unlocked-tier-btn" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-sm shadow-[0_4px_0_#047857] transition cursor-pointer shrink-0">
+                    Start Next Tier →
+                </button>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+                <div>
+                    <span id="summary-tier-badge" class="inline-block px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 text-xs font-extrabold mb-2">
+                        Tier 1 Summary
+                    </span>
+                    <h2 id="summary-heading" class="text-2xl sm:text-3xl font-black text-white">Foundations &amp; Basic Gates</h2>
+                    <p id="summary-subtext" class="text-sm text-slate-400 mt-1">
+                        Review your results or re-answer any missed questions to boost your mastery score.
+                    </p>
+                </div>
+
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl px-6 py-4 text-center shrink-0">
+                    <div id="summary-pct" class="text-3xl sm:text-4xl font-black text-emerald-400">0%</div>
+                    <div id="summary-fraction" class="text-xs font-mono text-slate-300 mt-1">0 / 50 Mastered</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button id="summary-reanswer-missed-btn" onclick="startTierMissedSession(state.summaryTierId)" class="hidden px-6 py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-sm shadow-[0_4px_0_#9f1239] active:translate-y-0.5 transition flex items-center gap-2 cursor-pointer">
+                    <span>↺</span>
+                    <span id="summary-reanswer-label">Re-Answer Missed Questions (0)</span>
+                </button>
+
+                <button onclick="startTierSession(state.summaryTierId, 'smart')" class="px-5 py-3.5 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white font-extrabold text-sm shadow-[0_4px_0_#5b21b6] active:translate-y-0.5 transition cursor-pointer">
+                    Continue Remaining / Practice Tier
+                </button>
+
+                <button onclick="goToHub()" class="px-5 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700 transition cursor-pointer">
+                    ← Back to Tiers Hub
+                </button>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Tier Question Breakdown (Click any question to practice/re-answer)</h3>
+                </div>
+                <div id="summary-q-list" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full max-w-6xl mx-auto px-4 pb-6 sm:px-6 text-center text-xs text-slate-500">
+        Progress is saved in this browser on this device. Clearing browser site data may erase it.
+        Tailwind CSS and web fonts load from online services.
+    </footer>
+
+    <!-- MODAL 1: MISSED QUESTIONS DRAWER -->
+    <div id="missed-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 shadow-2xl animate-pop-in flex flex-col max-h-[86vh]">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-black text-lg">↺</div>
+                    <div>
+                        <h3 id="missed-modal-title" class="font-extrabold text-lg text-white">Missed Questions Queue</h3>
+                        <p class="text-xs text-slate-400">Re-answer any missed question. Answering correctly removes it from this list!</p>
+                    </div>
+                </div>
+                <button onclick="closeMissedModal()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <div id="missed-modal-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
+
+            <div class="pt-4 mt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <button onclick="closeMissedModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-slate-300 cursor-pointer">
+                    Close
+                </button>
+                <button id="modal-start-retry-queue-btn" class="hidden px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-extrabold shadow-[0_3px_0_#9f1239] cursor-pointer">
+                    Re-Answer All Listed Questions →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: RESET CONFIRMATION -->
+    <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl animate-pop-in space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-black">⚠️</div>
+                <h3 class="font-extrabold text-lg text-white">Reset All Progress?</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed">
+                This will clear your mastery status across all 300 questions and re-lock Tiers 2 through 6. Are you sure you want to start fresh?
+            </p>
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button onclick="closeResetConfirmModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-semibold text-slate-300 cursor-pointer">
+                    Cancel
+                </button>
+                <button onclick="executeFullReset()" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-extrabold cursor-pointer">
+                    Yes, Reset Progress
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * SVG SCHEMATIC BUILDERS & CURRICULUM DEFINITIONS
+         * ============================================================================
+         */
+        const STORAGE_KEY = 'logicground_v3_state';
+        const UNLOCK_THRESHOLD = 0.70; // 70% mastery (35 / 50 questions) required to unlock next tier
+
+        const TIERS = [
+            { id: 1, name: "Tier 1: Foundations & Basic Gates", shortName: "Tier 1", subtitle: "AND, OR, NOT, Buffer, IEEE Symbols, & 3-Input Truth Tables", accent: "from-blue-600 to-indigo-600", badgeBg: "bg-blue-500/20 border-blue-500/30 text-blue-300" },
+            { id: 2, name: "Tier 2: Universal Gates", shortName: "Tier 2", subtitle: "NAND & NOR active-low bubbles, universal gate logic synthesis", accent: "from-cyan-600 to-blue-600", badgeBg: "bg-cyan-500/20 border-cyan-500/30 text-cyan-300" },
+            { id: 3, name: "Tier 3: Exclusive Gates & Parity", shortName: "Tier 3", subtitle: "XOR, XNOR, controlled inverters, and parity generator trees", accent: "from-amber-600 to-orange-600", badgeBg: "bg-amber-500/20 border-amber-500/30 text-amber-300" },
+            { id: 4, name: "Tier 4: Boolean Algebra & De Morgan's Laws", shortName: "Tier 4", subtitle: "De Morgan theorems, absorption, consensus, & principle of duality", accent: "from-pink-600 to-rose-600", badgeBg: "bg-pink-500/20 border-pink-500/30 text-pink-300" },
+            { id: 5, name: "Tier 5: Combinational Circuits & Timing", shortName: "Tier 5", subtitle: "SOP/POS canonical forms, minterms, propagation delay, & hazards", accent: "from-purple-600 to-indigo-600", badgeBg: "bg-purple-500/20 border-purple-500/30 text-purple-300" },
+            { id: 6, name: "Tier 6: Arithmetic & MSI Building Blocks", shortName: "Tier 6", subtitle: "Half/Full Adders, Ripple-Carry, Multiplexers, and Decoders", accent: "from-emerald-600 to-teal-600", badgeBg: "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" }
+        ];
+
+        const SVG_SHAPES = {
+            AND: `<svg viewBox="0 0 120 70" class="w-36 h-20"><path d="M 20 10 L 60 10 C 85 10 100 25 100 35 C 100 45 85 60 60 60 L 20 60 Z" fill="none" stroke="#38bdf8" stroke-width="4"/><line x1="5" y1="25" x2="20" y2="25" stroke="#94a3b8" stroke-width="3"/><line x1="5" y1="45" x2="20" y2="45" stroke="#94a3b8" stroke-width="3"/><line x1="100" y1="35" x2="115" y2="35" stroke="#38bdf8" stroke-width="3"/><text x="10" y="22" fill="#94a3b8" font-size="12" font-family="monospace">A</text><text x="10" y="55" fill="#94a3b8" font-size="12" font-family="monospace">B</text></svg>`,
+            OR: `<svg viewBox="0 0 120 70" class="w-36 h-20"><path d="M 20 10 C 45 10 70 20 95 35 C 70 50 45 60 20 60 C 35 45 35 25 20 10 Z" fill="none" stroke="#38bdf8" stroke-width="4"/><line x1="10" y1="25" x2="28" y2="25" stroke="#94a3b8" stroke-width="3"/><line x1="10" y1="45" x2="28" y2="45" stroke="#94a3b8" stroke-width="3"/><line x1="95" y1="35" x2="115" y2="35" stroke="#38bdf8" stroke-width="3"/><text x="10" y="22" fill="#94a3b8" font-size="12" font-family="monospace">A</text><text x="10" y="55" fill="#94a3b8" font-size="12" font-family="monospace">B</text></svg>`,
+            NOT: `<svg viewBox="0 0 120 70" class="w-36 h-20"><polygon points="20,15 20,55 75,35" fill="none" stroke="#38bdf8" stroke-width="4"/><circle cx="81" cy="35" r="6" fill="none" stroke="#38bdf8" stroke-width="3"/><line x1="5" y1="35" x2="20" y2="35" stroke="#94a3b8" stroke-width="3"/><line x1="87" y1="35" x2="115" y2="35" stroke="#38bdf8" stroke-width="3"/><text x="8" y="30" fill="#94a3b8" font-size="12" font-family="monospace">A</text></svg>`,
+            BUFFER: `<svg viewBox="0 0 120 70" class="w-36 h-20"><polygon points="20,15 20,55 85,35" fill="none" stroke="#38bdf8" stroke-width="4"/><line x1="5" y1="35" x2="20" y2="35" stroke="#94a3b8" stroke-width="3"/><line x1="85" y1="35" x2="115" y2="35" stroke="#38bdf8" stroke-width="3"/><text x="8" y="30" fill="#94a3b8" font-size="12" font-family="monospace">A</text></svg>`,
+            NAND: `<svg viewBox="0 0 120 70" class="w-36 h-20"><path d="M 20 10 L 55 10 C 80 10 94 25 94 35 C 94 45 80 60 55 60 L 20 60 Z" fill="none" stroke="#f43f5e" stroke-width="4"/><circle cx="101" cy="35" r="6" fill="none" stroke="#f43f5e" stroke-width="3"/><line x1="5" y1="25" x2="20" y2="25" stroke="#94a3b8" stroke-width="3"/><line x1="5" y1="45" x2="20" y2="45" stroke="#94a3b8" stroke-width="3"/><line x1="107" y1="35" x2="115" y2="35" stroke="#f43f5e" stroke-width="3"/><text x="10" y="22" fill="#94a3b8" font-size="12" font-family="monospace">A</text><text x="10" y="55" fill="#94a3b8" font-size="12" font-family="monospace">B</text></svg>`,
+            NOR: `<svg viewBox="0 0 120 70" class="w-36 h-20"><path d="M 20 10 C 45 10 68 20 90 35 C 68 50 45 60 20 60 C 33 45 33 25 20 10 Z" fill="none" stroke="#f43f5e" stroke-width="4"/><circle cx="97" cy="35" r="6" fill="none" stroke="#f43f5e" stroke-width="3"/><line x1="10" y1="25" x2="25" y2="25" stroke="#94a3b8" stroke-width="3"/><line x1="10" y1="45" x2="25" y2="45" stroke="#94a3b8" stroke-width="3"/><line x1="103" y1="35" x2="115" y2="35" stroke="#f43f5e" stroke-width="3"/><text x="10" y="22" fill="#94a3b8" font-size="12" font-family="monospace">A</text><text x="10" y="55" fill="#94a3b8" font-size="12" font-family="monospace">B</text></svg>`,
+            XOR: `<svg viewBox="0 0 120 70" class="w-36 h-20"><path d="M 15 10 C 30 25 30 45 15 60" fill="none" stroke="#fbbf24" stroke-width="3"/><path d="M 25 10 C 50 10 75 20 100 35 C 75 50 50 60 25 60 C 38 45 38 25 25 10 Z" fill="none" stroke="#fbbf24" stroke-width="4"/><line x1="5" y1="25" x2="18" y2="25" stroke="#94a3b8" stroke-width="3"/><line x1="5" y1="45" x2="18" y2="45" stroke="#94a3b8" stroke-width="3"/><line x1="100" y1="35" x2="115" y2="35" stroke="#fbbf24" stroke-width="3"/><text x="10" y="22" fill="#94a3b8" font-size="12" font-family="monospace">A</text><text x="10" y="55" fill="#94a3b8" font-size="12" font-family="monospace">B</text></svg>`,
+            XNOR: `<svg viewBox="0 0 120 70" class="w-36 h-20"><path d="M 15 10 C 30 25 30 45 15 60" fill="none" stroke="#fbbf24" stroke-width="3"/><path d="M 25 10 C 50 10 70 20 94 35 C 70 50 50 60 25 60 C 38 45 38 25 25 10 Z" fill="none" stroke="#fbbf24" stroke-width="4"/><circle cx="101" cy="35" r="6" fill="none" stroke="#fbbf24" stroke-width="3"/><line x1="5" y1="25" x2="18" y2="25" stroke="#94a3b8" stroke-width="3"/><line x1="5" y1="45" x2="18" y2="45" stroke="#94a3b8" stroke-width="3"/><line x1="107" y1="35" x2="115" y2="35" stroke="#fbbf24" stroke-width="3"/><text x="10" y="22" fill="#94a3b8" font-size="12" font-family="monospace">A</text><text x="10" y="55" fill="#94a3b8" font-size="12" font-family="monospace">B</text></svg>`
+        };
+
+        function evalGate(type, a, b) {
+            switch (type) {
+                case 'AND':  return (a & b);
+                case 'OR':   return (a | b);
+                case 'NAND': return (a & b) ? 0 : 1;
+                case 'NOR':  return (a | b) ? 0 : 1;
+                case 'XOR':  return (a ^ b);
+                case 'XNOR': return (a ^ b) ? 0 : 1;
+                default:     return 0;
+            }
+        }
+
+        function makeTwoStageSvg(g1, g2, a, b, c) {
+            return `<svg viewBox="0 0 280 80" class="w-full max-w-sm h-20"><rect x="10" y="15" width="70" height="50" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="25" y="45" fill="#38bdf8" font-size="13" font-weight="bold" font-family="monospace">${g1}</text><line x1="110" y1="40" x2="170" y2="40" stroke="#94a3b8" stroke-width="3"/><rect x="170" y="15" width="70" height="50" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/><text x="185" y="45" fill="#38bdf8" font-size="13" font-weight="bold" font-family="monospace">${g2}</text><text x="15" y="32" fill="#94a3b8" font-size="10" font-family="monospace">A=${a},B=${b}</text><text x="175" y="32" fill="#94a3b8" font-size="10" font-family="monospace">C=${c}</text></svg>`;
+        }
+
+        /**
+         * ============================================================================
+         * 300 VERIFIED QUESTIONS (EXACTLY 50 PER TIER ACROSS 6 TIERS)
+         * ============================================================================
+         */
+        function buildAllQuestions() {
+            const bank = [];
+            let nextId = 1;
+
+            const addQ = (tier, subtopic, prompt, options, correctIndex, explanation, diagramSvg = null, diagramCaption = '') => {
+                bank.push({
+                    id: nextId++,
+                    tier,
+                    subtopic,
+                    prompt,
+                    options,
+                    correctIndex,
+                    explanation,
+                    diagramSvg,
+                    diagramCaption
+                });
+            };
+
+            // =========================================================================
+            // TIER 1: FOUNDATIONS & BASIC GATES (50 QUESTIONS)
+            // =========================================================================
+            addQ(1, "Basic Gates", "Which basic logic gate outputs HIGH (1) ONLY when ALL of its inputs are HIGH (1)?",
+                ["OR Gate", "AND Gate", "XOR Gate", "NOR Gate"], 1,
+                "An AND gate performs logical multiplication (Y = A · B). Its output is 1 exclusively when every input is 1 (1 · 1 = 1). If even one input is 0, the output is forced to 0.");
+
+            addQ(1, "Basic Gates", "Which basic logic gate outputs HIGH (1) if AT LEAST ONE of its inputs is HIGH (1)?",
+                ["AND Gate", "NAND Gate", "OR Gate", "XNOR Gate"], 2,
+                "An OR gate performs logical addition (Y = A + B). It outputs 1 whenever one or more inputs are 1, and outputs 0 only when ALL inputs are 0.");
+
+            addQ(1, "Basic Gates", "What is the primary function of a NOT gate (Inverter)?",
+                ["It doubles the input voltage", "It outputs the exact opposite logical state of its single input", "It adds two binary bits together", "It stores 1 bit of memory"], 1,
+                "A NOT gate has a single input A and produces its complement Y = A' (or Ā). If A = 0, Y = 1; if A = 1, Y = 0.");
+
+            addQ(1, "IEEE Symbols", "Identify the logic gate shown in this standard IEEE schematic symbol:",
+                ["OR Gate", "AND Gate", "NAND Gate", "XOR Gate"], 1,
+                "The flat vertical input edge combined with a semicircular rounded nose and NO output bubble is the standard IEEE symbol for an AND gate (Y = A · B).",
+                SVG_SHAPES.AND, "Flat input edge + semicircular nose, no bubble");
+
+            addQ(1, "IEEE Symbols", "Identify the logic gate represented by this standard IEEE schematic symbol:",
+                ["AND Gate", "NOR Gate", "OR Gate", "XNOR Gate"], 2,
+                "The concave (inward-curved) input edge and pointed nose with no inversion bubble at the tip represents a standard OR gate (Y = A + B).",
+                SVG_SHAPES.OR, "Curved input edge + pointed nose, no bubble");
+
+            addQ(1, "IEEE Symbols", "Identify the single-input logic component shown below:",
+                ["Digital Buffer", "NOT Gate (Inverter)", "Schmitt Trigger", "Tri-State Enable"], 1,
+                "A triangle followed by a small inversion circle (bubble) at the output is a NOT gate (Inverter), which outputs Y = A'.",
+                SVG_SHAPES.NOT, "Triangle with inversion bubble at output");
+
+            addQ(1, "IEEE Symbols", "Identify this triangle symbol that has NO inversion bubble on its output:",
+                ["NOT Gate", "Digital Buffer", "NAND Gate", "Comparator"], 1,
+                "A triangle without an inversion bubble is a Digital Buffer (Y = A). Logically its truth value stays unchanged, while electrically it restores weak voltage levels and increases fan-out drive strength.",
+                SVG_SHAPES.BUFFER, "Triangle with NO inversion bubble");
+
+            addQ(1, "Truth Tables", "How many rows exist in the complete truth table of a 4-input AND gate?",
+                ["4 rows", "8 rows", "12 rows", "16 rows"], 3,
+                "A logic gate with n binary inputs has 2ⁿ possible input combinations. For n = 4 inputs, 2⁴ = 16 rows (from 0000 to 1111).");
+
+            addQ(1, "Truth Tables", "For a 3-input AND gate with inputs A = 1, B = 1, and C = 0, what is the output Y?",
+                ["1", "0", "High-Z", "Depends on clock"], 1,
+                "In an AND gate, ALL inputs must be 1 for the output to be 1. Because C = 0, 1 · 1 · 0 = 0.");
+
+            addQ(1, "Truth Tables", "For a 3-input OR gate with inputs A = 0, B = 0, and C = 1, what is the output Y?",
+                ["0", "1", "Undefined", "2"], 1,
+                "An OR gate outputs 1 whenever at least one input is 1. Since C = 1, 0 + 0 + 1 = 1.");
+
+            addQ(1, "Boolean Notation", "In standard Boolean algebra notation, what does the expression Y = A · B (or Y = AB) represent?",
+                ["A OR B", "A AND B", "A XOR B", "NOT A"], 1,
+                "A center dot (·) or juxtaposition (AB) denotes the logical AND operation, whereas a plus sign (+) denotes logical OR.");
+
+            addQ(1, "Boolean Notation", "If you pass a signal X through TWO NOT gates connected in series (Y = (X')'), what is the final output Y?",
+                ["X'", "0", "X", "1"], 2,
+                "By the Double Negation (Involution) Law, inverting a bit twice restores its original value: (0')' = 1' = 0 and (1')' = 0' = 1. Thus Y = X.");
+
+            addQ(1, "Truth Tables", "Which input combination causes a 2-input OR gate to output 0?",
+                ["A = 1, B = 0", "A = 0, B = 1", "A = 0, B = 0", "A = 1, B = 1"], 2,
+                "An OR gate outputs 0 ONLY when every single input is 0 (0 + 0 = 0). All other combinations contain at least one 1.");
+
+            addQ(1, "Truth Tables", "In a 3-input AND gate truth table (8 rows total), how many rows produce an output of 1?",
+                ["1 row", "3 rows", "4 rows", "7 rows"], 0,
+                "Only the single row where all inputs are HIGH (A=1, B=1, C=1) yields an output of 1. The remaining 7 rows contain at least one 0 and output 0.");
+
+            const t1Gates = ['AND', 'OR'];
+            const t1Combos = [
+                [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
+                [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
+            ];
+            let t1GenCount = 0;
+            for (const g of t1Gates) {
+                for (const [a, b, c] of t1Combos) {
+                    if (t1GenCount >= 16) break;
+                    const ans = g === 'AND' ? (a & b & c) : (a | b | c);
+                    const opSym = g === 'AND' ? '·' : '+';
+                    addQ(1, "3-Input Gate Evaluation",
+                        `Evaluate a 3-input ${g} gate when A = ${a}, B = ${b}, and C = ${c}. What is Y = A ${opSym} B ${opSym} C?`,
+                        ["0", "1", "Undefined (X)", "Inverts previous state"],
+                        ans === 0 ? 0 : 1,
+                        g === 'AND'
+                            ? `For a 3-input AND gate, Y = ${a} · ${b} · ${c} = ${ans}. Remember: AND outputs 1 only when all three inputs equal 1.`
+                            : `For a 3-input OR gate, Y = ${a} + ${b} + ${c} = ${ans}. Remember: OR outputs 1 if at least one input equals 1.`
+                    );
+                    t1GenCount++;
+                }
+            }
+            const t1TwoStage = [
+                ['AND', 'OR', 0, 1, 1], ['AND', 'OR', 1, 1, 0], ['OR', 'AND', 0, 1, 1], ['OR', 'AND', 1, 0, 0],
+                ['AND', 'AND', 1, 1, 1], ['OR', 'OR', 0, 0, 1], ['AND', 'OR', 1, 0, 0], ['OR', 'AND', 1, 1, 0]
+            ];
+            t1TwoStage.forEach(([g1, g2, a, b, c]) => {
+                const mid = evalGate(g1, a, b);
+                const out = evalGate(g2, mid, c);
+                addQ(1, "Basic Circuit Tracing",
+                    `Trace this 2-gate circuit: Stage 1 computes (${a} ${g1} ${b}), and its result enters Stage 2 (${g2}) with C = ${c}. What is output Y?`,
+                    ["0", "1", "Floating", "Oscillating"],
+                    out === 0 ? 0 : 1,
+                    `Step 1: (${a} ${g1} ${b}) = ${mid}. Step 2: (${mid} ${g2} ${c}) = ${out}. Therefore, final output Y = ${out}.`,
+                    makeTwoStageSvg(g1, g2, a, b, c),
+                    `Stage 1: ${g1}(${a},${b}) → Stage 2: ${g2}(mid, ${c})`
+                );
+            });
+
+            // Tier 1 Expansion (+12 Qs -> 50 total)
+            const t1Expansion = [
+                ["Truth Table Sizing", "How many total input combinations (rows) exist in the truth table of a 5-input OR gate?", ["10 rows", "16 rows", "25 rows", "32 rows"], 3, "A logic gate with n binary inputs has 2ⁿ possible input combinations. For n = 5 inputs, 2⁵ = 32 rows."],
+                ["Truth Table Sizing", "If a logic gate's complete truth table has 64 rows, how many input pins does the gate have?", ["5 inputs", "6 inputs", "8 inputs", "32 inputs"], 1, "Solve 2ⁿ = 64: since 2⁶ = 64, the logic gate has 6 input pins."],
+                ["Basic Gate Behavior", "In a 4-input OR gate, how many rows of its 16-row truth table produce an output of 0?", ["1 row", "4 rows", "8 rows", "15 rows"], 0, "An OR gate outputs 0 ONLY when every single input is 0. The other 15 rows contain at least one 1."],
+                ["Basic Gate Behavior", "In a 4-input AND gate, how many rows of its 16-row truth table produce an output of 0?", ["1 row", "4 rows", "12 rows", "15 rows"], 3, "Only the all-1s row (1111) outputs 1. The remaining 15 rows output 0."],
+                ["Inverter Chains", "If input A = 1 passes through a chain of 5 NOT gates connected in series, what is the final output?", ["1", "0", "High-Z", "5"], 1, "An odd number of inverters acts as a single NOT gate. 1 inverted 5 times becomes 0."],
+                ["Inverter Chains", "If input A = 0 passes through a chain of 6 NOT gates connected in series, what is the final output?", ["0", "1", "Undefined", "6"], 0, "Because 6 is an EVEN number of inversions, every pair of NOT gates cancels out, restoring A = 0."],
+                ["Digital Voltage Logic", "In standard positive-logic TTL/CMOS digital systems, which voltage level represents Logic HIGH (1)?", ["0V / Ground (GND)", "Nominal supply voltage V_CC / V_DD (e.g., +3.3V or +5V)", "-5V negative rail", "120V AC mains"], 1, "Positive logic assigns binary 1 (HIGH) to the higher voltage rail (V_CC / V_DD)."],
+                ["Negative Logic", "In a 'Negative Logic' convention (low voltage = 1, high voltage = 0), how does a physical positive-logic AND gate behave?", ["As a Negative-Logic OR gate", "As a Buffer", "As an XOR gate", "It stops conducting"], 0, "By De Morgan's duality, swapping 0 and 1 voltage definitions transforms a physical AND gate into a negative-logic OR gate."],
+                ["Boolean Expressions", "Which Boolean expression corresponds to an AND gate whose A input is inverted first, then ANDed with B?", ["(A · B)'", "A' · B", "A + B'", "(A' · B')"], 1, "Inverting A first gives A', and feeding A' and B into an AND gate produces Y = A' · B."],
+                ["Boolean Expressions", "Evaluate Y = A' + B when A = 1 and B = 0.", ["0", "1", "Undefined", "2"], 0, "When A = 1, A' = 0. Then Y = 0 + 0 = 0."],
+                ["Boolean Expressions", "Evaluate Y = A' · B' when A = 0 and B = 0.", ["0", "1", "High-Z", "Depends on clock"], 1, "When A = 0 and B = 0, A' = 1 and B' = 1. Therefore Y = 1 · 1 = 1."],
+                ["Buffer Applications", "Why would a digital engineer place two NOT gates in series (a non-inverting Buffer) along a long circuit trace?", ["To change 1 into 0", "To restore degraded voltage levels, sharpen slow signal edges, and increase current drive (fan-out)", "To divide frequency by 2", "To perform binary subtraction"], 1, "Buffers and double-inverters preserve logic state while regenerating clean rail-to-rail voltage levels and boosting drive current."]
+            ];
+            t1Expansion.forEach(([sub, pr, opts, ci, exp]) => addQ(1, sub, pr, opts, ci, exp));
+
+            // =========================================================================
+            // TIER 2: UNIVERSAL GATES (NAND & NOR) (50 QUESTIONS)
+            // =========================================================================
+            addQ(2, "Universal Concepts", "Which two logic gates are universally recognized as 'Universal Gates' in digital logic?",
+                ["AND and OR", "XOR and XNOR", "NAND and NOR", "NOT and Buffer"], 2,
+                "NAND and NOR are functionally complete (Universal Gates): any Boolean function can be constructed using only NAND gates or only NOR gates.");
+
+            addQ(2, "IEEE Symbols", "Identify this standard logic gate with a flat-back D-shape and an inversion bubble on its output:",
+                ["AND Gate", "NAND Gate", "NOR Gate", "XNOR Gate"], 1,
+                "The D-shaped body denotes AND (A · B), and the small circle (bubble) at the tip denotes NOT inversion. Together they form a NAND gate: Y = (A · B)'.",
+                SVG_SHAPES.NAND, "AND body + output inversion bubble");
+
+            addQ(2, "IEEE Symbols", "Identify this curved-back logic gate that includes an inversion bubble at its nose:",
+                ["OR Gate", "XOR Gate", "NOR Gate", "NAND Gate"], 2,
+                "The curved OR body combined with an output inversion bubble represents a NOR gate: Y = (A + B)'.",
+                SVG_SHAPES.NOR, "OR body + output inversion bubble");
+
+            addQ(2, "NAND Truth Logic", "When does a 2-input NAND gate output LOW (0)?",
+                ["When both inputs are 0", "When inputs are different", "ONLY when ALL inputs are HIGH (1)", "Whenever at least one input is 1"], 2,
+                "NAND is NOT-AND. Since an AND gate outputs 1 only when all inputs are 1, inverting it means a NAND gate outputs 0 ONLY when all inputs are 1 (1 NAND 1 = 0).");
+
+            addQ(2, "NOR Truth Logic", "When does a 2-input NOR gate output HIGH (1)?",
+                ["ONLY when ALL inputs are LOW (0)", "When both inputs are 1", "When inputs differ", "Whenever any input is 1"], 0,
+                "NOR is NOT-OR. An OR gate outputs 0 only when all inputs are 0, so inverting it means a NOR gate outputs 1 ONLY when all inputs are 0 (0 NOR 0 = 1).");
+
+            addQ(2, "Universal Synthesis", "How do you construct a NOT gate (inverter) using a single 2-input NAND gate?",
+                ["Connect one input to 0 and the other to A", "Tie both inputs together to signal A", "Leave one input floating", "Connect one input to 1 and ignore the output"], 1,
+                "Tying both inputs to A computes (A · A)' = A' (by the Idempotent Law A · A = A).");
+
+            addQ(2, "Universal Synthesis", "How many 2-input NAND gates are required to build a 2-input AND gate?",
+                ["1 NAND gate", "2 NAND gates", "3 NAND gates", "4 NAND gates"], 1,
+                "2 NAND gates: The first computes (A · B)', and the second (with tied inputs acting as a NOT gate) inverts it back to ((A · B)')' = A · B.");
+
+            addQ(2, "Universal Synthesis", "How many 2-input NAND gates are required to construct a 2-input OR gate?",
+                ["1 NAND gate", "2 NAND gates", "3 NAND gates", "4 NAND gates"], 2,
+                "3 NAND gates! By De Morgan's Law, A + B = (A' · B')'. Use two NAND gates as inverters to get A' and B', then feed both into a third NAND gate.");
+
+            addQ(2, "Universal Synthesis", "How many 2-input NOR gates are required to construct a 2-input OR gate?",
+                ["1 NOR gate", "2 NOR gates", "3 NOR gates", "4 NOR gates"], 1,
+                "2 NOR gates: The first NOR gate computes (A + B)', and the second NOR gate (wired as an inverter) inverts it back to ((A + B)')' = A + B.");
+
+            addQ(2, "Universal Synthesis", "How many 2-input NOR gates are required to construct a 2-input AND gate?",
+                ["1 NOR gate", "2 NOR gates", "3 NOR gates", "4 NOR gates"], 2,
+                "3 NAND/NOR gates! By De Morgan's Law, A · B = (A' + B')'. Two NOR gates invert A and B into A' and B', and a third NOR gate combines them.");
+
+            addQ(2, "Universal Synthesis", "How many 2-input NAND gates are needed to build a 2-input XOR gate (A ⊕ B)?",
+                ["2 NAND gates", "3 NAND gates", "4 NAND gates", "6 NAND gates"], 2,
+                "A classic minimized CMOS/TTL design constructs a 2-input XOR gate using exactly 4 NAND gates.");
+
+            addQ(2, "Universal Synthesis", "If you tie one input of a 2-input NOR gate permanently to logic 1 (HIGH) and feed signal A into the other input, what is the output?",
+                ["A'", "A", "Always 0", "Always 1"], 2,
+                "Because 1 OR A = 1 for any value of A, inverting that result gives (1 + A)' = 1' = 0. Thus tying a NOR input to 1 forces a constant 0 output.");
+
+            addQ(2, "Universal Synthesis", "If you tie one input of a 2-input NAND gate permanently to logic 0 (LOW) and feed signal A into the other input, what is the output?",
+                ["Always 1", "Always 0", "A'", "A"], 0,
+                "Because 0 AND A = 0 regardless of A, inverting that result gives (0 · A)' = 0' = 1. Thus tying a NAND input to 0 forces a constant 1 output.");
+
+            addQ(2, "Active-Low Equivalence", "By De Morgan's Law, a 2-input NAND gate is logically identical to which 'bubbled-input' gate?",
+                ["An OR gate with inverted inputs (A' + B')", "An AND gate with inverted inputs (A' · B')", "An XOR gate", "A Buffer"], 0,
+                "(A · B)' = A' + B'. Therefore, a NAND gate is functionally identical to a negative-input OR gate.");
+
+            const uGates = ['NAND', 'NOR'];
+            const uPairs = [[0, 0], [0, 1], [1, 0], [1, 1]];
+            uGates.forEach(g => {
+                uPairs.forEach(([a, b]) => {
+                    const out = evalGate(g, a, b);
+                    addQ(2, `${g} Gate Evaluation`,
+                        `Compute the output Y of a 2-input ${g} gate when A = ${a} and B = ${b}.`,
+                        ["0", "1", "High-Z", "Depends on previous state"],
+                        out === 0 ? 0 : 1,
+                        g === 'NAND'
+                            ? `First compute A AND B = ${a} · ${b} = ${a & b}. Then invert for NAND: (${a & b})' = ${out}.`
+                            : `First compute A OR B = ${a} + ${b} = ${a | b}. Then invert for NOR: (${a | b})' = ${out}.`
+                    );
+                });
+            });
+
+            const uTwoStage = [
+                ['NAND', 'NAND', 0, 0, 1], ['NAND', 'NAND', 1, 1, 0], ['NAND', 'NAND', 1, 0, 1], ['NAND', 'NAND', 1, 1, 1],
+                ['NOR', 'NOR', 0, 0, 0],   ['NOR', 'NOR', 0, 0, 1],   ['NOR', 'NOR', 1, 0, 0],   ['NOR', 'NOR', 1, 1, 1],
+                ['NAND', 'NOR', 1, 1, 0],  ['NAND', 'NOR', 0, 1, 0],  ['NOR', 'NAND', 0, 0, 1],  ['NOR', 'NAND', 1, 0, 1],
+                ['NAND', 'AND', 1, 0, 1],  ['NOR', 'OR', 1, 1, 0],    ['AND', 'NAND', 1, 1, 1],  ['OR', 'NOR', 0, 0, 0]
+            ];
+            uTwoStage.forEach(([g1, g2, a, b, c]) => {
+                const mid = evalGate(g1, a, b);
+                const out = evalGate(g2, mid, c);
+                addQ(2, "Universal Circuit Tracing",
+                    `Trace the circuit: Gate 1 is ${g1}(A=${a}, B=${b}), feeding into Gate 2 which is ${g2}(mid, C=${c}). What is output Y?`,
+                    ["0", "1", "Indeterminate", "Short circuit"],
+                    out === 0 ? 0 : 1,
+                    `Step 1: ${g1}(${a}, ${b}) produces intermediate signal = ${mid}. Step 2: ${g2}(${mid}, ${c}) produces final output Y = ${out}.`,
+                    makeTwoStageSvg(g1, g2, a, b, c),
+                    `Gate 1: ${g1}(${a},${b})=${mid} → Gate 2: ${g2}(${mid},${c})=${out}`
+                );
+            });
+
+            // Tier 2 Expansion (+12 Qs -> 50 total)
+            const t2Expansion = [
+                ["3-Input NAND", "For a 3-input NAND gate with inputs A = 1, B = 1, and C = 0, what is the output Y?", ["0", "1", "Undefined", "Floating"], 1, "1 · 1 · 0 = 0. Inverting for NAND yields 0' = 1."],
+                ["3-Input NAND", "For a 3-input NAND gate with inputs A = 1, B = 1, and C = 1, what is the output Y?", ["0", "1", "High-Z", "3"], 0, "1 · 1 · 1 = 1, and inverting for NAND produces Y = 1' = 0."],
+                ["3-Input NOR", "For a 3-input NOR gate with inputs A = 0, B = 0, and C = 0, what is the output Y?", ["0", "1", "Undefined", "Floating"], 1, "0 + 0 + 0 = 0, and inverting for NOR gives Y = 0' = 1."],
+                ["3-Input NOR", "For a 3-input NOR gate with inputs A = 0, B = 1, and C = 0, what is the output Y?", ["0", "1", "High-Z", "2"], 0, "0 + 1 + 0 = 1, and inverting for NOR gives Y = 1' = 0."],
+                ["Universal Synthesis", "How many 2-input NAND gates are required to construct a 2-input NOR gate (Y = (A + B)')?", ["2 NAND gates", "3 NAND gates", "4 NAND gates", "5 NAND gates"], 2, "It takes 3 NAND gates to build an OR gate (A + B), plus 1 final NAND gate wired as an inverter—totaling 4 NAND gates."],
+                ["Universal Synthesis", "How many 2-input NOR gates are required to construct a 2-input NAND gate (Y = (A · B)')?", ["2 NOR gates", "3 NOR gates", "4 NOR gates", "5 NOR gates"], 2, "It takes 3 NOR gates to build an AND gate (A · B), plus 1 final NOR gate wired as an inverter—totaling 4 NOR gates."],
+                ["Universal Synthesis", "How many 2-input NOR gates are needed to build a 2-input XNOR gate?", ["2 NOR gates", "3 NOR gates", "4 NOR gates", "6 NOR gates"], 2, "Just as 4 NAND gates can build an XOR gate, 4 NOR gates can construct a 2-input XNOR gate."],
+                ["NAND/NOR Cascading", "If you cascade two 2-input NAND gates as Y = ((A NAND B) NAND C), is that equivalent to a 3-input NAND gate (A · B · C)'?", ["Yes, NAND is associative", "No! ((A·B)' · C)' simplifies to A·B + C', NOT (A·B·C)'", "Only when C = 0", "Only when A = B = 1"], 1, "NAND and NOR are NOT associative! ((A·B)' · C)' = A·B + C' by De Morgan's Law."],
+                ["NAND/NOR Cascading", "If you cascade two 2-input NOR gates as Y = ((A NOR B) NOR C), what Boolean expression does Y equal?", ["(A + B + C)'", "(A + B) · C'", "A' · B' · C'", "A + B + C"], 1, "By De Morgan's Law: ((A + B)' + C)' = (A + B) · C'."],
+                ["CMOS Gate Efficiency", "In modern CMOS silicon chip manufacturing, why are NAND and NOR gates faster and smaller than AND and OR gates?", ["CMOS transistors naturally invert signals, so NAND/NOR require only 4 transistors while AND/OR require 6 transistors", "AND gates require vacuum tubes", "NAND gates use zero transistors", "OR gates run at higher voltage"], 0, "A 2-input NAND or NOR uses 4 MOSFETs, whereas building a non-inverting AND or OR requires appending an inverter stage (6 MOSFETs total)."],
+                ["Active-Low Enable", "A memory chip has an active-low Chip Select pin (/CS) driven by a NAND gate. If inputs are A = 1 and B = 1, is /CS active (0)?", ["Yes, 1 NAND 1 = 0, so /CS is active", "No, 1 NAND 1 = 1", "Only if C = 0", "The chip enters High-Z"], 0, "Because 1 NAND 1 = 0, the active-low /CS line drops to 0V, enabling the memory chip."],
+                ["Bubble Pushing", "Using 'Bubble Pushing' (De Morgan equivalence), a NOR gate with bubbles on both inputs—i.e., (A' + B')'—is equivalent to which basic gate?", ["AND Gate (A · B)", "OR Gate (A + B)", "XOR Gate", "NAND Gate"], 0, "By De Morgan's Law: (A' + B')' = (A')' · (B')' = A · B."]
+            ];
+            t2Expansion.forEach(([sub, pr, opts, ci, exp]) => addQ(2, sub, pr, opts, ci, exp));
+
+            // =========================================================================
+            // TIER 3: EXCLUSIVE GATES & PARITY (XOR & XNOR) (50 QUESTIONS)
+            // =========================================================================
+            addQ(3, "XOR Fundamentals", "When does a 2-input XOR (Exclusive-OR) gate output HIGH (1)?",
+                ["When both inputs are 1", "When both inputs are 0", "When its two inputs are DIFFERENT (one 0 and one 1)", "Always"], 2,
+                "XOR stands for Exclusive-OR ('one or the other, but not both'). Its truth table outputs 1 for (0,1) and (1,0).");
+
+            addQ(3, "XNOR Fundamentals", "Why is an XNOR gate often called an 'Equivalence' or 'Equality' gate?",
+                ["It outputs 1 ONLY when both inputs have the EXACT SAME logic level (0,0 or 1,1)", "It makes input A equal to input B physically", "It always outputs 1", "It has equal propagation delay"], 0,
+                "XNOR is the complement of XOR. Since XOR outputs 1 when A ≠ B, XNOR outputs 1 when A == B.");
+
+            addQ(3, "IEEE Symbols", "Notice the extra curved arc on the input side of this gate. Identify it:",
+                ["OR Gate", "NOR Gate", "XOR Gate", "XNOR Gate"], 2,
+                "The double-curved input edge identifies an Exclusive gate, and the lack of an output bubble confirms it is an XOR gate (Y = A ⊕ B).",
+                SVG_SHAPES.XOR, "Double-curved input edge, no output bubble");
+
+            addQ(3, "IEEE Symbols", "Identify this Exclusive gate that features BOTH a double-curved input edge AND an output bubble:",
+                ["XOR Gate", "XNOR Gate", "NOR Gate", "NAND Gate"], 1,
+                "The double-curved input arc indicates Exclusive-OR, and the bubble on the nose inverts it into an XNOR gate: Y = (A ⊕ B)'.",
+                SVG_SHAPES.XNOR, "Double-curved input edge + output bubble");
+
+            addQ(3, "Controlled Inverter", "If one input of an XOR gate is used as a control line C and the other is data D (Y = D ⊕ C), what happens when C = 1?",
+                ["Y = D (data passes unchanged)", "Y = D' (the XOR gate acts as a controlled inverter)", "Y = 0 always", "Y = 1 always"], 1,
+                "Check the truth table: 0 ⊕ 1 = 1 and 1 ⊕ 1 = 0! Thus D ⊕ 1 = D'. When C = 0, D ⊕ 0 = D. This makes XOR a programmable Controlled Inverter.");
+
+            addQ(3, "XOR Identities", "What does the Boolean expression A ⊕ A simplify to for any binary bit A?",
+                ["1", "A", "0", "A'"], 2,
+                "Because both inputs are identical, 0 ⊕ 0 = 0 and 1 ⊕ 1 = 0. Therefore, A ⊕ A = 0 always.");
+
+            addQ(3, "XOR Identities", "What does the Boolean expression A ⊕ A' simplify to?",
+                ["0", "1", "A", "A'"], 1,
+                "A and A' are always opposite bits. Since XOR outputs 1 whenever inputs differ, A ⊕ A' = 1 always.");
+
+            addQ(3, "Multi-Input XOR", "For a multi-input XOR gate (3 or more inputs), what general rule determines when the output is 1?",
+                ["When an EVEN number of inputs are 1", "When an ODD number of inputs are 1", "When all inputs are 1", "When at least one input is 1"], 1,
+                "Multi-input XOR acts as an ODD-parity detector: Y = A ⊕ B ⊕ C equals 1 if and only if an ODD count (1 or 3) of its inputs are 1.");
+
+            addQ(3, "Multi-Input XNOR", "For a 3-input XNOR gate (Y = (A ⊕ B ⊕ C)'), when is the output equal to 1?",
+                ["When an EVEN number of inputs are 1 (including zero 1s)", "When an ODD number of inputs are 1", "Only when all 3 inputs are 1", "Only when all 3 inputs are 0"], 0,
+                "Because 3-input XOR outputs 1 for an odd number of 1s, inverting it (3-input XNOR) outputs 1 whenever an EVEN number of inputs are 1.");
+
+            addQ(3, "Parity Circuits", "In digital communications, what is the purpose of an Even-Parity Generator circuit built with XOR gates?",
+                ["To encrypt data with AES-256", "To add a parity bit so the total number of 1s in the transmitted word is always EVEN, detecting single-bit errors", "To compress files", "To convert binary into decimal"], 1,
+                "An XOR tree computes parity. If a single bit flips during transmission, the receiver's parity check flags an error.");
+
+            addQ(3, "SOP Expansion", "Which Sum-of-Products (SOP) Boolean expression is mathematically equivalent to A ⊕ B?",
+                ["A·B + A'·B'", "A'·B + A·B'", "A + B", "(A + B)·(A' + B')'"], 1,
+                "A ⊕ B is 1 when (A=0, B=1) OR (A=1, B=0), translating directly to A'·B + A·B'.");
+
+            addQ(3, "SOP Expansion", "Which Sum-of-Products (SOP) Boolean expression is mathematically equivalent to A XNOR B?",
+                ["A'·B + A·B'", "A·B + A'·B'", "A' + B'", "A·B'"], 1,
+                "A XNOR B is 1 when both inputs are 1 (A·B) OR both inputs are 0 (A'·B'), giving Y = A·B + A'·B'.");
+
+            addQ(3, "Associativity", "Is the XOR operation associative—meaning does (A ⊕ B) ⊕ C always equal A ⊕ (B ⊕ C)?",
+                ["Yes, XOR is both associative and commutative", "No, grouping changes the truth table", "Only when C = 0", "Only when A = B"], 0,
+                "Yes! XOR is both commutative and associative, allowing parity trees to be balanced cleanly in hardware.");
+
+            addQ(3, "Bitwise Encryption", "If plaintext bit P = 1 is encrypted with key bit K = 1 using C = P ⊕ K, how do you recover P from ciphertext C?",
+                ["P = C · K", "P = C ⊕ K (XOR with the same key K again)", "P = C + K", "P = C'"], 1,
+                "Because (P ⊕ K) ⊕ K = P, XOR is its own inverse!");
+
+            const t3Combos = [
+                [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
+                [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
+            ];
+            t3Combos.forEach(([a, b, c]) => {
+                const xorOut = a ^ b ^ c;
+                addQ(3, "3-Input XOR Evaluation",
+                    `Evaluate the 3-input XOR expression Y = A ⊕ B ⊕ C when A = ${a}, B = ${b}, and C = ${c}.`,
+                    ["0", "1", "Undefined", "Depends on order"],
+                    xorOut === 0 ? 0 : 1,
+                    `Count the 1s: there are ${a + b + c} ones. Since ${a + b + c} is ${(a + b + c) % 2 === 1 ? 'ODD, 3-input XOR outputs 1' : 'EVEN, 3-input XOR outputs 0'}.`
+                );
+            });
+
+            t3Combos.forEach(([a, b, c]) => {
+                const xnorOut = (a ^ b ^ c) ? 0 : 1;
+                addQ(3, "3-Input XNOR Evaluation",
+                    `Evaluate the 3-input XNOR expression Y = (A ⊕ B ⊕ C)' when A = ${a}, B = ${b}, and C = ${c}.`,
+                    ["0", "1", "Floating", "High-Z"],
+                    xnorOut === 0 ? 0 : 1,
+                    `First, ${a} ⊕ ${b} ⊕ ${c} = ${a ^ b ^ c}. Inverting for 3-input XNOR yields Y = ${xnorOut}.`
+                );
+            });
+
+            const t3TwoStage = [
+                ['XOR', 'AND', 1, 0, 1], ['XOR', 'OR', 1, 1, 0],  ['XNOR', 'AND', 1, 1, 1], ['XNOR', 'OR', 0, 1, 0],
+                ['AND', 'XOR', 1, 1, 1], ['OR', 'XOR', 0, 1, 1],  ['NAND', 'XNOR', 1, 0, 1], ['NOR', 'XOR', 0, 0, 1]
+            ];
+            t3TwoStage.forEach(([g1, g2, a, b, c]) => {
+                const mid = evalGate(g1, a, b);
+                const out = evalGate(g2, mid, c);
+                addQ(3, "Exclusive Circuit Tracing",
+                    `Trace this combinational circuit: Stage 1 computes ${g1}(A=${a}, B=${b}), feeding into Stage 2 which is ${g2}(mid, C=${c}). What is Y?`,
+                    ["0", "1", "Undefined", "Oscillates"],
+                    out === 0 ? 0 : 1,
+                    `Stage 1: ${g1}(${a}, ${b}) = ${mid}. Stage 2: ${g2}(${mid}, ${c}) = ${out}. Final output Y = ${out}.`,
+                    makeTwoStageSvg(g1, g2, a, b, c),
+                    `Stage 1: ${g1}(${a},${b})=${mid} → Stage 2: ${g2}(${mid},${c})=${out}`
+                );
+            });
+
+            // Tier 3 Expansion (+12 Qs -> 50 total)
+            const t3Expansion = [
+                ["XOR Algebraic Identities", "Simplify the Boolean expression: Y = (A ⊕ B) ⊕ B", ["A", "B", "0", "1"], 0, "By associativity and self-inverse: A ⊕ (B ⊕ B) = A ⊕ 0 = A."],
+                ["XOR Algebraic Identities", "Simplify the Boolean expression: Y = (A ⊕ B) ⊕ (A ⊕ B)'", ["0", "1", "A ⊕ B", "A · B"], 1, "Any expression XORed with its own complement (X ⊕ X') always equals 1."],
+                ["XNOR Algebraic Identities", "What does A XNOR 1 simplify to for any binary bit A?", ["A'", "A", "0", "1"], 1, "Check both values: 0 XNOR 1 = 0, and 1 XNOR 1 = 1. Thus A XNOR 1 = A."],
+                ["XNOR Algebraic Identities", "What does A XNOR 0 simplify to for any binary bit A?", ["A", "A'", "0", "1"], 1, "0 XNOR 0 = 1 and 1 XNOR 0 = 0. Thus A XNOR 0 = A'."],
+                ["Gray Code Conversion", "In Binary-to-Gray code conversion, how is Gray bit G₁ computed from binary bits B₂ and B₁?", ["G₁ = B₂ · B₁", "G₁ = B₂ ⊕ B₁", "G₁ = B₂ + B₁", "G₁ = (B₂ · B₁)'"], 1, "Adjacent binary bits are XORed together (Gᵢ = Bᵢ₊₁ ⊕ Bᵢ)."],
+                ["4-Bit Parity Check", "A 4-bit data word D = 1011 is fed into an Odd-Parity Generator. What parity bit P is generated?", ["0", "1", "2", "Undefined"], 0, "D = 1011 contains three 1s (odd). Therefore, P = 0 keeps the total count odd."],
+                ["4-Bit Parity Check", "A 4-bit data word D = 1100 is fed into an Even-Parity Generator (P = D₃ ⊕ D₂ ⊕ D₁ ⊕ D₀). What parity bit P is generated?", ["0", "1", "Undefined", "High-Z"], 0, "1 ⊕ 1 ⊕ 0 ⊕ 0 = 0 (even count of two 1s), so P = 0 preserves even parity."],
+                ["4-Bit Parity Check", "A 4-bit data word D = 1110 is fed into an Even-Parity Generator. What parity bit P is generated?", ["0", "1", "Undefined", "Floating"], 1, "1 ⊕ 1 ⊕ 1 ⊕ 0 = 1. Adding P = 1 brings total 1s to four (even)."],
+                ["2-Bit Equality Comparator", "How do you build a 2-bit Equality Comparator that outputs EQ = 1 ONLY when 2-bit number A₁A₀ equals B₁B₀?", ["EQ = (A₁ XNOR B₁) · (A₀ XNOR B₀)", "EQ = (A₁ ⊕ B₁) + (A₀ ⊕ B₀)", "EQ = (A₁ · B₁) ⊕ (A₀ · B₀)", "EQ = A₁ + B₁ + A₀ + B₀"], 0, "Both bit positions must match simultaneously: (A₁ XNOR B₁) · (A₀ XNOR B₀)."],
+                ["NAND-to-XOR", "If you invert the output of an XOR gate using a NOT gate, which logic gate do you obtain?", ["NOR Gate", "NAND Gate", "XNOR Gate", "OR Gate"], 2, "Inverting Exclusive-OR produces Exclusive-NOR: (A ⊕ B)' = A XNOR B."],
+                ["4-Input XOR Evaluation", "Evaluate the 4-input XOR expression Y = A ⊕ B ⊕ C ⊕ D when A = 1, B = 0, C = 1, and D = 1.", ["0", "1", "3", "Undefined"], 1, "Count the 1s: A=1, C=1, D=1 gives three 1s (odd). Multi-input XOR outputs 1."],
+                ["4-Input XNOR Evaluation", "Evaluate the 4-input XNOR expression Y = (A ⊕ B ⊕ C ⊕ D)' when A = 1, B = 1, C = 0, and D = 0.", ["0", "1", "2", "Floating"], 1, "1 ⊕ 1 ⊕ 0 ⊕ 0 = 0 (even count). Inverting for 4-input XNOR gives Y = 0' = 1."]
+            ];
+            t3Expansion.forEach(([sub, pr, opts, ci, exp]) => addQ(3, sub, pr, opts, ci, exp));
+
+            // =========================================================================
+            // TIER 4: BOOLEAN ALGEBRA & DE MORGAN'S LAWS (50 QUESTIONS)
+            // =========================================================================
+            const boolQuestions = [
+                ["De Morgan's First Law", "According to De Morgan's First Theorem, what is (A + B)' equivalent to?",
+                    ["A' + B'", "A' · B'", "A · B", "(A · B)'"], 1,
+                    "De Morgan's rule: 'Break the bar, change the sign.' Breaking the negation bar over (A + B)' changes + (OR) to · (AND), producing A' · B'."],
+                ["De Morgan's Second Law", "According to De Morgan's Second Theorem, what is (A · B)' equivalent to?",
+                    ["A' · B'", "A + B", "A' + B'", "A · B'"], 2,
+                    "Breaking the negation bar over (A · B)' changes · (AND) to + (OR), producing A' + B'."],
+                ["Identity Law (OR)", "In Boolean algebra, what does A + 0 simplify to?",
+                    ["0", "1", "A", "A'"], 2,
+                    "Identity Law for OR: ORing any variable A with 0 leaves A unchanged."],
+                ["Identity Law (AND)", "In Boolean algebra, what does A · 1 simplify to?",
+                    ["1", "0", "A'", "A"], 3,
+                    "Identity Law for AND: ANDing any variable A with 1 preserves A."],
+                ["Null / Annulment Law", "What does the Boolean expression A · 0 always simplify to?",
+                    ["A", "0", "1", "A'"], 1,
+                    "Annulment Law: Anything ANDed with 0 is forced to 0."],
+                ["Null / Annulment Law", "What does the Boolean expression A + 1 always simplify to?",
+                    ["A", "0", "1", "A'"], 2,
+                    "Annulment Law: Anything ORed with 1 is forced to 1."],
+                ["Idempotent Law", "What does A + A simplify to in Boolean algebra?",
+                    ["2A", "A²", "A", "1"], 2,
+                    "Idempotent Law: In binary logic, 0 + 0 = 0 and 1 + 1 = 1, so A + A = A."],
+                ["Idempotent Law", "What does A · A simplify to in Boolean algebra?",
+                    ["A", "A²", "0", "1"], 0,
+                    "Idempotent Law: 0 · 0 = 0 and 1 · 1 = 1, so A · A = A."],
+                ["Complement Law", "What does A + A' always simplify to?",
+                    ["0", "A", "1", "A'"], 2,
+                    "Complement Law: Either A is 1 or A' is 1, so their logical OR is guaranteed to be 1."],
+                ["Complement Law", "What does A · A' always simplify to?",
+                    ["1", "0", "A", "A'"], 1,
+                    "Complement Law: One of A or A' is guaranteed to be 0, so their logical AND is always 0."],
+                ["Absorption Law", "Simplify the Boolean expression: Y = A + (A · B)",
+                    ["B", "A · B", "A", "A + B"], 2,
+                    "Absorption Law: Factor out A → A · (1 + B) = A · 1 = A."],
+                ["Absorption Law", "Simplify the Boolean expression: Y = A · (A + B)",
+                    ["A", "B", "A + B", "0"], 0,
+                    "Absorption Law: Distribute A → A·A + A·B = A + A·B = A."],
+                ["Redundancy / Absorption", "Simplify the common exam expression: Y = A + A'·B",
+                    ["A + B", "A · B", "A' + B", "B"], 0,
+                    "Using distribution over OR: A + A'·B = (A + A') · (A + B) = 1 · (A + B) = A + B."],
+                ["Redundancy / Absorption", "Simplify the Boolean expression: Y = A · (A' + B)",
+                    ["A + B", "A · B", "A' · B", "0"], 1,
+                    "Distribute A: A·A' + A·B = 0 + A·B = A·B."],
+                ["Factoring & Complement", "Simplify: Y = A·B + A·B'",
+                    ["B", "A", "A + B", "1"], 1,
+                    "Factor out A: A · (B + B') = A · 1 = A."],
+                ["Factoring & Complement", "Simplify: Y = (A + B) · (A + B')",
+                    ["B", "A", "A · B", "0"], 1,
+                    "By the Second Distributive Law, (A + B)(A + B') = A + (B · B') = A + 0 = A."],
+                ["De Morgan's 3-Variable", "Apply De Morgan's Theorem to simplify: Y = (A · B' · C)'",
+                    ["A' · B · C'", "A' + B + C'", "A + B' + C", "A' + B' + C'"], 1,
+                    "Break the bar over all three variables and change · to +: A' + B + C'."],
+                ["De Morgan's 3-Variable", "Apply De Morgan's Theorem to simplify: Y = (A' + B + C')'",
+                    ["A · B' · C", "A' · B' · C'", "A + B' + C", "A · B · C"], 0,
+                    "Break the bar and change + to ·: A · B' · C."],
+                ["Consensus Theorem", "According to the Boolean Consensus Theorem, what does Y = A·B + A'·C + B·C simplify to?",
+                    ["A·B + A'·C", "B·C", "A + B + C", "A·B·C"], 0,
+                    "Consensus Theorem: The term B·C is redundant and drops out, leaving A·B + A'·C."],
+                ["Distributive Law", "In Boolean algebra, how does A + (B · C) expand under the Second Distributive Law?",
+                    ["(A + B) · (A + C)", "(A · B) + (A · C)", "A + B + C", "A · B · C"], 0,
+                    "Boolean algebra is dual: OR (+) distributes over AND (·): A + (B · C) = (A + B) · (A + C)."],
+                ["Principle of Duality", "What is the 'Dual' of the Boolean equation: A · (B + 0) = A · B ?",
+                    ["A + (B · 1) = A + B", "A' · (B' + 1) = A' · B'", "A + (B · 0) = A + B", "A · (B + 1) = A"], 0,
+                    "Swap every AND (·) with OR (+), and swap every 0 with 1: A + (B · 1) = A + B."],
+                ["De Morgan's Nested", "Simplify the nested De Morgan expression: Y = ((A + B)' · C)'",
+                    ["A + B + C'", "(A + B) · C'", "A' · B' + C'", "A · B · C"], 0,
+                    "Break the outer bar first: ((A + B)')' + C' = A + B + C'."],
+                ["De Morgan's Nested", "Simplify: Y = ((A · B)' + C')'",
+                    ["A · B · C", "A' + B' + C", "A · B + C", "(A + B) · C"], 0,
+                    "Break the outer bar and change + to ·: ((A · B)')' · (C')' = A · B · C."],
+                ["Boolean Simplification", "Simplify: Y = A·B·C + A·B·C' + A·B'",
+                    ["A", "A·B", "B + C", "A + B'"], 0,
+                    "Step 1: Factor A·B from first two terms → A·B. Step 2: A·B + A·B' = A."],
+                ["Boolean Simplification", "Simplify: Y = (A + B) · (A' + B)",
+                    ["A", "B", "A + B", "A · B"], 1,
+                    "Using the Second Distributive Law, (B + A)(B + A') = B + (A · A') = B + 0 = B."],
+                ["Boolean Simplification", "Simplify: Y = A'·B' + A'·B + A·B",
+                    ["A' + B", "A + B'", "A' · B", "1"], 0,
+                    "Notice A'·B' + A'·B = A'. Then A' + A·B = A' + B."],
+                ["XOR Algebraic Form", "Expand and simplify: Y = (A + B) · (A' + B')",
+                    ["A·B + A'·B'", "A'·B + A·B' (which is A ⊕ B)", "0", "1"], 1,
+                    "FOIL expansion: 0 + A·B' + A'·B + 0 = A'·B + A·B' = A ⊕ B."],
+                ["XNOR Algebraic Form", "Simplify: Y = (A' + B) · (A + B')",
+                    ["A'·B + A·B'", "A·B + A'·B' (which is A XNOR B)", "A + B", "0"], 1,
+                    "FOIL expansion: 0 + A'·B' + A·B + 0 = A·B + A'·B' = A XNOR B."],
+                ["De Morgan's Equivalence", "Which gate is equivalent to an OR gate whose inputs are both inverted: Y = A' + B' ?",
+                    ["NOR Gate", "NAND Gate", "AND Gate", "XOR Gate"], 1,
+                    "By De Morgan's Second Law, A' + B' = (A · B)', which is a NAND gate."],
+                ["De Morgan's Equivalence", "Which gate is equivalent to an AND gate whose inputs are both inverted: Y = A' · B' ?",
+                    ["NAND Gate", "NOR Gate", "OR Gate", "XNOR Gate"], 1,
+                    "By De Morgan's First Law, A' · B' = (A + B)', which is a NOR gate."],
+                ["Boolean Simplification", "Simplify: Y = A + A·B + A·B·C + A·B·C·D",
+                    ["A·B·C·D", "A", "A + B + C + D", "1"], 1,
+                    "Factor out A: A · (1 + ...). Because 1 OR anything equals 1, Y = A."],
+                ["Boolean Simplification", "Simplify: Y = (A + B + C) · (A + B + C) · 1",
+                    ["A + B + C", "3(A + B + C)", "A · B · C", "1"], 0,
+                    "By the Idempotent Law, repeating (A + B + C) collapses to A + B + C."],
+                ["De Morgan's Check", "Is (A + B)' equal to A' + B' ?",
+                    ["Yes, always", "No! (A + B)' equals A' · B', whereas A' + B' equals (A · B)'", "Only when A = B", "Only when A = 0"], 1,
+                    "(A + B)' = A' · B' (you must flip + to ·)."],
+                ["Boolean Evaluation", "If A = 1 and B = 0, evaluate Y = (A' + B)' + A·B'",
+                    ["0", "1", "Undefined", "Depends on C"], 1,
+                    "A'=0, B'=1. First term: (0 + 0)' = 1. Second term: 1 · 1 = 1. Final: 1 + 1 = 1."],
+                ["Boolean Evaluation", "If A = 0 and B = 1, evaluate Y = (A · B)' · (A' + B)",
+                    ["0", "1", "High-Z", "2"], 1,
+                    "First term: (0 · 0)' = 1. Second term: (1 + 1) = 1. Final: 1 · 1 = 1."],
+                ["Complement Check", "What is the exact Boolean complement Y' of the function Y = A·B + C ?",
+                    ["A'·B' + C'", "(A' + B') · C'", "A' + B' + C'", "A·B·C'"], 1,
+                    "Apply De Morgan's Law: Y' = ((A·B) + C)' = (A·B)' · C' = (A' + B') · C'."],
+                ["Complement Check", "What is the exact Boolean complement Y' of Y = (A + B) · C ?",
+                    ["(A' · B') + C'", "A' + B' + C'", "A' · B' · C'", "(A + B)' · C'"], 0,
+                    "Apply De Morgan's Law: Y' = ((A + B) · C)' = (A + B)' + C' = (A' · B') + C'."],
+                ["K-Map Adjacency", "Two product terms A·B'·C and A·B·C are ORed together (Y = A·B'·C + A·B·C). What do they simplify to?",
+                    ["A·C", "B", "A·B·C", "A + C"], 0,
+                    "Factor out A·C: A·C · (B' + B) = A·C."]
+            ];
+            boolQuestions.forEach(([sub, pr, opts, ci, exp]) => addQ(4, sub, pr, opts, ci, exp));
+
+            // Tier 4 Expansion (+12 Qs -> 50 total)
+            const t4Expansion = [
+                ["Boolean Simplification", "Simplify the Boolean expression: Y = A·B + A·B' + A'·B + A'·B'", ["0", "1", "A + B", "A ⊕ B"], 1, "This sums all four minterms of two variables, evaluating to 1."],
+                ["Boolean Simplification", "Simplify: Y = (A + B) · (A + B') · (A' + B) · (A' + B')", ["1", "0", "A · B", "A + B"], 1, "This multiplies all four maxterms of two variables, evaluating to 0."],
+                ["Consensus Dual", "By the Principle of Duality applied to Consensus, what does Y = (A + B) · (A' + C) · (B + C) simplify to?", ["(A + B) · (A' + C)", "(B + C)", "A · B · C", "A + B + C"], 0, "Dual of Consensus Theorem: (B + C) is redundant and drops out."],
+                ["De Morgan's Simplification", "Simplify using De Morgan's Law: Y = (A' · B')' · (A + B)", ["A + B", "A · B", "0", "1"], 0, "(A' · B')' = A + B. Then (A + B) · (A + B) = A + B."],
+                ["De Morgan's Simplification", "Simplify: Y = (A + B)' + (A' + B)'", ["B'", "A'", "0", "1"], 0, "(A'·B') + (A·B') = B' · (A' + A) = B'."],
+                ["Absorption Variant", "Simplify: Y = A' + A·B'", ["A' + B'", "A' · B'", "A + B'", "B'"], 0, "A' + A·B' = (A' + A)(A' + B') = A' + B'."],
+                ["Absorption Variant", "Simplify: Y = A' · (A + B')", ["A' · B'", "A' + B'", "A · B'", "0"], 0, "Distribute A': A'·A + A'·B' = 0 + A'·B' = A'·B'."],
+                ["3-Variable Simplification", "Simplify: Y = A·B·C + A'·B·C + B·C'", ["B", "C", "A + B", "B · C"], 0, "Factor B·C from first two terms: B·C(A + A') + B·C' = B·C + B·C' = B."],
+                ["De Morgan's 4-Variable", "Apply De Morgan's Theorem to: Y = (A + B' + C + D')'", ["A' · B · C' · D", "A' + B + C' + D", "A · B' · C · D'", "A' · B' · C' · D'"], 0, "Break the bar and flip every + to · while complementing each literal."],
+                ["Self-Dual Functions", "How many distinct Boolean functions of n = 2 variables exist in total?", ["4 functions", "8 functions", "16 functions", "32 functions"], 2, "A truth table with 2 inputs has 4 rows, giving 2^(2²) = 16 possible functions."],
+                ["Boolean Evaluation", "Evaluate Y = (A ⊕ B)' · (A + B) when A = 1 and B = 1.", ["0", "1", "Undefined", "2"], 1, "(1 ⊕ 1)' = 1, and (1 + 1) = 1. Therefore Y = 1."],
+                ["Boolean Evaluation", "Evaluate Y = (A · B)' + (A ⊕ B) when A = 1 and B = 1.", ["0", "1", "High-Z", "Floating"], 0, "(1 · 1)' = 0, and (1 ⊕ 1) = 0. Therefore Y = 0 + 0 = 0."]
+            ];
+            t4Expansion.forEach(([sub, pr, opts, ci, exp]) => addQ(4, sub, pr, opts, ci, exp));
+
+            // =========================================================================
+            // TIER 5: COMBINATIONAL CIRCUITS & TIMING (50 QUESTIONS)
+            // =========================================================================
+            const tier5Conceptual = [
+                ["SOP Canonical Form", "In Sum-of-Products (SOP) Boolean expressions, what is a 'Minterm' (mᵢ)?",
+                    ["An OR term containing all variables", "An AND product term in which every input variable appears once (complemented or uncomplemented), evaluating to 1 for exactly one truth-table row", "A gate with minimal propagation delay", "The output column"], 1,
+                    "A minterm mᵢ is a product of all n variables that equals 1 for row i and 0 for all other rows."],
+                ["POS Canonical Form", "In Product-of-Sums (POS) Boolean expressions, what is a 'Maxterm' (Mᵢ)?",
+                    ["An OR sum term containing every variable once, which evaluates to 0 for exactly one truth-table row", "An AND term that equals 1 for all rows", "The largest number of gates", "A term that maximizes power"], 0,
+                    "A maxterm Mᵢ is a sum term that equals 0 for row i."],
+                ["Minterm Decoding", "For a 3-variable function F(A, B, C), which product term corresponds to Minterm m₆ (binary 110)?",
+                    ["A' · B' · C", "A · B · C'", "A · B' · C", "A' · B · C'"], 1,
+                    "Binary 6 is 110₂ → A=1, B=1, C=0. Minterm is A · B · C'."],
+                ["Maxterm Decoding", "For a 3-variable function F(A, B, C), which sum term corresponds to Maxterm M₂ (binary 010)?",
+                    ["A + B' + C", "A' + B + C'", "A' · B · C'", "A + B + C"], 0,
+                    "Maxterm M₂ equals 0 when A=0, B=1, C=0: M₂ = A + B' + C."],
+                ["Two-Level Logic", "A standard Sum-of-Products (SOP) circuit consists of which two levels of logic gates?",
+                    ["Level 1: OR gates → Level 2: AND gate", "Level 1: AND gates → Level 2: OR gate", "Level 1: XOR gates → Level 2: NOT gate", "Level 1: NOR gates → Level 2: AND gate"], 1,
+                    "SOP means summing (ORing) multiple product (AND) terms—AND gates first, OR gate second."],
+                ["NAND-NAND Conversion", "Why can any two-level AND-OR (SOP) circuit be directly replaced gate-for-gate with a NAND-NAND circuit?",
+                    ["Because adding bubbles at outputs of Level 1 and inputs of Level 2 cancels out (De Morgan)", "Because AND and NAND have identical truth tables", "Because OR and NAND are identical", "Only when all inputs are 0"], 0,
+                    "Double inversion! Inverting Level-1 AND outputs turns them into NANDs, and inverting Level-2 OR inputs turns it into a NAND."],
+                ["NOR-NOR Conversion", "Any two-level OR-AND (Product-of-Sums) circuit can be directly implemented gate-for-gate using which universal gate?",
+                    ["NAND-NAND only", "NOR-NOR", "XOR-XOR", "Buffer-Buffer"], 1,
+                    "Adding bubbles between Level-1 OR gates and Level-2 AND gate turns them into NOR-NOR logic."],
+                ["Propagation Delay", "If each logic gate in a 3-stage combinational path has a propagation delay (t_pd) of 5 ns, what is the worst-case critical path delay?",
+                    ["5 ns", "10 ns", "15 ns", "125 ns"], 2,
+                    "3 stages × 5 ns/stage = 15 ns cumulative delay."],
+                ["Static Hazards / Glitches", "What causes a momentary unwanted output spike (Static-1 Hazard) in a real physical combinational circuit?",
+                    ["Unequal propagation delays along reconvergent paths when an input changes", "Using too many power supplies", "Running with no timer", "Using CMOS"], 0,
+                    "When a signal splits into paths with different gate delays, the circuit can briefly transition through an unintended intermediate state."],
+                ["Fan-Out", "What does the 'Fan-Out' specification of a logic gate measure?",
+                    ["The maximum number of standard gate inputs that a single gate output can reliably drive without voltage degradation", "The physical width of the chip", "The number of inputs", "Cooling fan speed"], 0,
+                    "Fan-out is the maximum load an output pin can drive while maintaining valid HIGH/LOW voltage margins."],
+                ["Don't-Care Conditions", "In K-Map design, how are 'Don't-Care' (X) input combinations treated?",
+                    ["They must always be wired to 0", "The designer can treat them as either 1 or 0—whichever yields the simplest gate circuit", "They cause overheating", "They always output 1"], 1,
+                    "Treating Don't-Cares selectively as 1 or 0 allows larger K-map groupings and fewer gates."],
+                ["Canonical Minterm Count", "If a 3-input truth table has 5 rows where F = 1, how many minterms appear in its canonical SOP expression?",
+                    ["3 minterms", "5 minterms", "8 minterms", "2 minterms"], 1,
+                    "Each HIGH row contributes exactly one minterm."],
+                ["Boolean Function Synthesis", "What Boolean function is implemented by F(A, B) = Σm(1, 2)?",
+                    ["A · B", "A + B", "A ⊕ B (XOR)", "A XNOR B"], 2,
+                    "Row 1 (A'·B) + Row 2 (A·B') = A ⊕ B."],
+                ["Boolean Function Synthesis", "What Boolean function is implemented by F(A, B) = Σm(0, 3)?",
+                    ["A ⊕ B", "A XNOR B", "A NAND B", "A NOR B"], 1,
+                    "Row 0 (A'·B') + Row 3 (A·B) = A XNOR B."]
+            ];
+            tier5Conceptual.forEach(([sub, pr, opts, ci, exp]) => addQ(5, sub, pr, opts, ci, exp));
+
+            const t5Expressions = [
+                { expr: "Y = (A · B) + (B' · C)", fn: (a, b, c) => (a & b) | ((b ^ 1) & c), desc: "(A·B) + (B'·C)" },
+                { expr: "Y = (A + B) · (B' + C)", fn: (a, b, c) => (a | b) & ((b ^ 1) | c), desc: "(A+B)·(B'+C)" },
+                { expr: "Y = (A ⊕ B) · C'",       fn: (a, b, c) => (a ^ b) & (c ^ 1),       desc: "(A⊕B)·C'" },
+                { expr: "Y = (A NAND B) ⊕ C",     fn: (a, b, c) => ((a & b) ^ 1) ^ c,       desc: "(A NAND B)⊕C" },
+                { expr: "Y = (A NOR C) + B",      fn: (a, b, c) => ((a | c) ^ 1) | b,       desc: "(A NOR C)+B" },
+                { expr: "Y = (A' · C) ⊕ (B · C)", fn: (a, b, c) => ((a ^ 1) & c) ^ (b & c), desc: "(A'·C)⊕(B·C)" }
+            ];
+            const t5Inputs = [[0, 1, 1], [1, 0, 1], [1, 1, 0], [0, 0, 1]];
+            t5Expressions.forEach(item => {
+                t5Inputs.forEach(([a, b, c]) => {
+                    const out = item.fn(a, b, c);
+                    addQ(5, "Multi-Gate Expression Evaluation",
+                        `Evaluate the combinational Boolean equation ${item.expr} when A = ${a}, B = ${b}, and C = ${c}.`,
+                        ["0", "1", "Undefined", "Floating"],
+                        out === 0 ? 0 : 1,
+                        `Substitute A=${a}, B=${b}, C=${c} into ${item.desc}: direct Boolean evaluation gives Y = ${out}.`
+                    );
+                });
+            });
+
+            // Tier 5 Expansion (+12 Qs -> 50 total)
+            const t5Expansion = [
+                ["Minterm Decoding", "For a 3-variable function F(A, B, C), which product term corresponds to Minterm m₃ (binary 011)?", ["A' · B · C", "A · B' · C'", "A + B' + C'", "A' · B' · C"], 0, "Decimal 3 is 011₂ → A=0, B=1, C=1. Thus m₃ = A' · B · C."],
+                ["Minterm Decoding", "For a 4-variable function F(A, B, C, D), which product term corresponds to Minterm m₁₀ (binary 1010)?", ["A · B' · C · D'", "A' · B · C' · D", "A + B' + C + D'", "A · B · C' · D'"], 0, "Decimal 10 is 1010₂ → A=1, B=0, C=1, D=0."],
+                ["Maxterm Decoding", "For a 3-variable function F(A, B, C), which sum term corresponds to Maxterm M₇ (binary 111)?", ["A + B + C", "A' + B' + C'", "A' · B' · C'", "A + B' + C"], 1, "Maxterm M₇ equals 0 when A=1, B=1, C=1: M₇ = A' + B' + C'."],
+                ["SOP to POS Conversion", "If a 3-variable Boolean function is given in minterm form as F(A, B, C) = Σm(0, 2, 4, 6), what is its equivalent Maxterm list ΠM(...)?", ["ΠM(0, 2, 4, 6)", "ΠM(1, 3, 5, 7)", "ΠM(0, 1, 2, 3)", "ΠM(4, 5, 6, 7)"], 1, "Maxterms correspond to rows where F = 0 — all indices missing from Σm: {1, 3, 5, 7}."],
+                ["Static-1 Hazard Fix", "In SOP circuit Y = A·B + A'·C, a Static-1 Hazard occurs when B=1, C=1 and A transitions 1→0. Which redundant consensus term eliminates this glitch?", ["+ B·C", "+ A·C", "+ A'·B", "+ A·B·C"], 0, "Adding consensus term B·C holds output steadily at 1 during the transition."],
+                ["Propagation Delay", "A 4-level combinational circuit has stage delays of 4ns, 6ns, 3ns, and 5ns. What is the maximum clock frequency (1 / t_pd)?", ["18 MHz", "55.56 MHz (1 / 18 ns)", "100 MHz", "250 MHz"], 1, "Total path delay = 4+6+3+5 = 18 ns. Max frequency = 1 / (18 × 10⁻⁹) ≈ 55.56 MHz."],
+                ["K-Map Grouping", "In a Karnaugh Map, how many variables are eliminated when you group 4 adjacent 1s (a quad) in a 4-variable K-map?", ["1 variable", "2 variables", "3 variables", "4 variables"], 1, "Grouping 2ᵏ adjacent cells eliminates k variables. A quad eliminates 2 variables."],
+                ["K-Map Grouping", "In a 4-variable K-map, how many literals remain in a single product term formed by grouping 8 adjacent 1s (an octet)?", ["1 literal", "2 literals", "3 literals", "0 literals"], 0, "An octet has 8 cells, eliminating 3 of the 4 variables and leaving 1 literal."],
+                ["Noise Margin", "What does 'Noise Margin' specify for a family of logic gates?", ["The maximum unwanted voltage interference an input can tolerate without misinterpreting 0 as 1 (or vice versa)", "The audible hum", "Thermal resistance", "Clock jitter"], 0, "Noise Margin is the safety buffer between driver output voltage and receiver threshold."],
+                ["Open-Collector / Open-Drain", "What external component is required on the output of an Open-Drain gate to pull the signal HIGH when the transistor is off?", ["A Pull-Up Resistor connected to V_CC", "A step-down transformer", "A diode bridge", "A quartz crystal"], 0, "Open-drain outputs can only pull LOW; an external pull-up resistor pulls HIGH when inactive."],
+                ["Prime Implicants", "In K-Map minimization, what is an 'Essential Prime Implicant'?", ["A prime implicant that covers at least one minterm not covered by any other prime implicant", "Any gate on the PCB edge", "A minterm equal to 0", "Clock inverter"], 0, "Essential Prime Implicants MUST be included in the final minimized equation."],
+                ["Function Evaluation", "For F(A, B, C) = Σm(1, 3, 5, 7), what single-literal Boolean expression does F simplify to?", ["A", "B", "C", "C'"], 2, "Minterms 1, 3, 5, 7 are all four rows where C = 1. Therefore F(A,B,C) = C."]
+            ];
+            t5Expansion.forEach(([sub, pr, opts, ci, exp]) => addQ(5, sub, pr, opts, ci, exp));
+
+            // =========================================================================
+            // TIER 6: ARITHMETIC & MSI BUILDING BLOCKS (50 QUESTIONS)
+            // =========================================================================
+            const tier6Questions = [
+                ["Half Adder", "A Half Adder adds two 1-bit binary numbers A and B. What are the exact gate equations for Sum (S) and Carry (C)?",
+                    ["S = A + B, C = A · B", "S = A ⊕ B, C = A · B", "S = A · B, C = A ⊕ B", "S = A XNOR B, C = A + B"], 1,
+                    "Sum matches XOR (1 when bits differ) and Carry matches AND (1 only when both bits are 1)."],
+                ["Half Adder Limitation", "Why can't a Half Adder alone be used for the middle bit positions of a multi-bit binary adder?",
+                    ["It lacks a Carry-In (C_in) input from the previous less-significant bit position", "It only works with negative numbers", "It uses too many XOR gates", "It outputs analog voltage"], 0,
+                    "Adding bit columns ≥ 1 requires adding THREE bits: Aᵢ, Bᵢ, and C_in—which requires a Full Adder."],
+                ["Full Adder", "How many inputs and outputs does a standard 1-bit Full Adder have?",
+                    ["2 inputs, 2 outputs", "3 inputs (A, B, C_in), 2 outputs (Sum, C_out)", "3 inputs, 1 output", "4 inputs, 2 outputs"], 1,
+                    "A Full Adder takes three 1-bit inputs and produces two 1-bit outputs: Sum and Carry-Out."],
+                ["Full Adder Sum", "What is the Boolean equation for the Sum output of a 1-bit Full Adder?",
+                    ["Sum = A + B + C_in", "Sum = A ⊕ B ⊕ C_in", "Sum = A · B · C_in", "Sum = (A ⊕ B) · C_in"], 1,
+                    "The Sum bit is 1 whenever an ODD number of the three inputs are 1, which is A ⊕ B ⊕ C_in."],
+                ["Full Adder Carry", "What is the standard Boolean equation for Carry-Out (C_out) of a Full Adder?",
+                    ["C_out = A·B + C_in·(A ⊕ B)", "C_out = A ⊕ B ⊕ C_in", "C_out = A + B + C_in", "C_out = A'·B'·C_in'"], 0,
+                    "A carry is generated if both A and B are 1 (A·B), OR if one of A/B is 1 and C_in is 1: C_out = A·B + C_in·(A ⊕ B)."],
+                ["Full Adder Construction", "How can a 1-bit Full Adder be constructed from Half Adders?",
+                    ["1 Half Adder + 1 NOT gate", "2 Half Adders + 1 OR gate", "3 Half Adders + 1 AND gate", "2 Half Adders + 1 XOR gate"], 1,
+                    "HA1 adds A and B. HA2 adds S₁ and C_in. An OR gate combines the two carries to produce C_out."],
+                ["Ripple-Carry Adder", "What is the primary performance bottleneck of an N-bit Ripple-Carry Adder?",
+                    ["Each Full Adder must wait for the Carry-Out bit to 'ripple' through all preceding stages", "It cannot add numbers > 4", "It requires floating-point hardware", "It consumes zero power"], 0,
+                    "The worst-case carry must propagate sequentially through all Full Adders before the MSB is valid."],
+                ["Binary Subtractor", "How do CPUs turn an N-bit Full Adder into a Binary Subtractor (A - B) using Two's Complement?",
+                    ["XOR each bit of B with 1 (to invert B) and set initial Carry-In C₀ = 1", "Replace all XOR gates with NOR gates", "Invert A and set C₀ = 0", "Shift B left by 2 bits"], 0,
+                    "A - B = A + B' + 1. Feeding B through XOR with control M=1 computes B', and setting C₀ = 1 adds +1."],
+                ["Multiplexer (MUX)", "What is the core function of a Multiplexer (MUX)?",
+                    ["It acts as a digital 'Data Selector', routing one of several data inputs to a single output based on Select lines", "It multiplies two binary numbers", "It converts parallel data to audio", "It stores RAM"], 0,
+                    "A MUX is a digital selector switch: using S select lines, it chooses one of 2ˢ input lines and connects it to output Y."],
+                ["Multiplexer Sizing", "How many Select lines (S) are required to control an 8-to-1 Multiplexer?",
+                    ["2 select lines", "3 select lines", "4 select lines", "8 select lines"], 1,
+                    "Because 2ˢ = N, solving 2ˢ = 8 gives S = 3 select lines."],
+                ["2-to-1 MUX Equation", "What is the Boolean equation for a 2-to-1 Multiplexer with data inputs I₀, I₁ and select line S?",
+                    ["Y = S'·I₀ + S·I₁", "Y = S·I₀ + S'·I₁", "Y = I₀ ⊕ I₁ ⊕ S", "Y = (I₀ + I₁) · S"], 0,
+                    "When S = 0, Y = I₀. When S = 1, Y = I₁. Thus Y = S'·I₀ + S·I₁."],
+                ["MUX Universal Logic", "Can a 4-to-1 Multiplexer implement ANY arbitrary 2-variable Boolean function F(A, B)?",
+                    ["Yes! Tie A and B to select lines S₁, S₀ and wire data inputs (I₀..I₃) to truth table outputs", "No", "Only for AND/OR", "Only with Decoder"], 0,
+                    "A MUX acts as a hardware lookup table where data inputs directly supply truth table rows."],
+                ["Demultiplexer (DEMUX)", "How does a Demultiplexer (DEMUX) differ from a Multiplexer?",
+                    ["A DEMUX takes a SINGLE data input and routes it to ONE of 2ˢ output lines based on select lines", "A DEMUX divides clock frequency", "A DEMUX has no select lines", "They are identical"], 0,
+                    "A DEMUX is a data distributor (1-to-2ⁿ)—the exact inverse of a MUX."],
+                ["Binary Decoder", "What does an n-to-2ⁿ Binary Decoder (such as a 3-to-8 Decoder) do?",
+                    ["It converts an n-bit binary input code into an active signal on ONLY ONE of its 2ⁿ output lines (generating all minterms)", "It compresses 8 wires into 3", "It decrypts RSA", "It adds numbers"], 0,
+                    "For each input value i, a Decoder asserts output line Yᵢ (corresponding to minterm mᵢ)."],
+                ["Decoder Sizing", "A 4-to-16 Decoder has how many input lines and how many output lines?",
+                    ["4 inputs, 16 outputs", "16 inputs, 4 outputs", "4 inputs, 8 outputs", "2 inputs, 16 outputs"], 0,
+                    "An n-to-2ⁿ decoder takes n = 4 inputs and decodes them into 2⁴ = 16 distinct output lines."],
+                ["Binary Encoder", "What is the role of an 8-to-3 Priority Encoder?",
+                    ["It outputs the 3-bit binary index of the highest-priority active input among 8 input lines", "It converts 3 bits to 8", "It checks parity", "It multiplies by 8"], 0,
+                    "A Priority Encoder resolves conflicts when multiple inputs are active by encoding the highest-indexed active line."],
+                ["Magnitude Comparator", "A 1-bit Magnitude Comparator checks if A == B, A > B, and A < B. Which single gate computes the (A == B) output?",
+                    ["XOR gate", "XNOR gate", "NAND gate", "NOR gate"], 1,
+                    "XNOR outputs 1 if and only if A and B are equal."],
+                ["Magnitude Comparator", "In a 1-bit Magnitude Comparator, which Boolean expression detects A > B (A=1 and B=0)?",
+                    ["A' · B", "A · B'", "A ⊕ B", "A + B'"], 1,
+                    "For 1-bit numbers, A > B occurs when A = 1 and B = 0, expressed by A · B'."],
+                ["Tri-State Buffer", "Besides logic 0 and logic 1, what is the third output state of a Tri-State Buffer used on shared CPU buses?",
+                    ["High-Impedance (High-Z / electrically disconnected)", "Negative 5 Volts", "Oscillating clock", "Logic 2"], 0,
+                    "When disabled, a Tri-State Buffer enters High-Z, disconnecting itself so multiple devices share a single bus."]
+            ];
+            tier6Questions.forEach(([sub, pr, opts, ci, exp]) => addQ(6, sub, pr, opts, ci, exp));
+
+            const faCombos = [
+                [0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
+                [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]
+            ];
+            faCombos.forEach(([a, b, cin]) => {
+                const total = a + b + cin;
+                const sum = total % 2;
+                const cout = total >= 2 ? 1 : 0;
+                const ansStr = `Sum = ${sum}, C_out = ${cout}`;
+                const allPairs = [
+                    "Sum = 0, C_out = 0",
+                    "Sum = 1, C_out = 0",
+                    "Sum = 0, C_out = 1",
+                    "Sum = 1, C_out = 1"
+                ];
+                const correctIdx = allPairs.indexOf(ansStr);
+                addQ(6, "Full Adder Evaluation",
+                    `A 1-bit Full Adder receives A = ${a}, B = ${b}, and C_in = ${cin}. What are its Sum and Carry-Out (C_out) outputs?`,
+                    allPairs,
+                    correctIdx,
+                    `Add the three bits: ${a} + ${b} + ${cin} = ${total} in decimal, which is ${cout}${sum}₂ in binary → C_out = ${cout} and Sum = ${sum}.`
+                );
+            });
+
+            const muxCases = [
+                { s1: 0, s0: 0, d: [1, 0, 0, 1] },
+                { s1: 0, s0: 1, d: [1, 0, 1, 1] },
+                { s1: 1, s0: 0, d: [0, 1, 1, 0] },
+                { s1: 1, s0: 1, d: [1, 1, 1, 0] },
+                { s1: 0, s0: 0, d: [0, 1, 1, 1] },
+                { s1: 0, s0: 1, d: [0, 1, 0, 0] },
+                { s1: 1, s0: 0, d: [1, 1, 0, 1] },
+                { s1: 1, s0: 1, d: [0, 0, 0, 1] },
+                { s1: 0, s0: 1, d: [1, 1, 0, 0] },
+                { s1: 1, s0: 0, d: [1, 0, 0, 1] },
+                { s1: 1, s0: 1, d: [0, 1, 1, 0] }
+            ];
+            muxCases.forEach(({ s1, s0, d }) => {
+                const idx = (s1 << 1) | s0;
+                const out = d[idx];
+                addQ(6, "4-to-1 MUX Tracing",
+                    `A 4-to-1 Multiplexer has data inputs I₀=${d[0]}, I₁=${d[1]}, I₂=${d[2]}, I₃=${d[3]}. If Select lines are S₁=${s1} and S₀=${s0}, what is output Y?`,
+                    ["0", "1", "High-Z", "Select error"],
+                    out === 0 ? 0 : 1,
+                    `Binary select S₁S₀ = ${s1}${s0}₂ = decimal ${idx}. MUX routes input I${idx} to output Y: since I${idx} = ${out}, Y = ${out}.`
+                );
+            });
+
+            // Tier 6 Expansion (+12 Qs -> 50 total)
+            const t6Expansion = [
+                ["4-Bit Ripple Addition", "When adding two 4-bit unsigned numbers 1011₂ (11) + 0110₂ (6) in a 4-bit Ripple-Carry Adder, what are the 4-bit Sum and final Carry-Out (C₄)?", ["Sum = 0001, C₄ = 1", "Sum = 1101, C₄ = 0", "Sum = 0001, C₄ = 0", "Sum = 1111, C₄ = 1"], 0, "11 + 6 = 17, which is 10001₂ in binary → C₄ = 1 and 4-bit Sum = 0001."],
+                ["Carry-Lookahead Adder", "How does a Carry-Lookahead Adder (CLA) speed up binary addition compared to a Ripple-Carry Adder?", ["It computes Carry Generate (Gᵢ) and Carry Propagate (Pᵢ) signals in parallel to calculate carries without waiting for ripple propagation", "It uses analog multipliers", "It skips LSB", "It halves bit width"], 0, "CLA reduces carry delay from O(N) to O(log N) using parallel carry generation."],
+                ["Multiplexer Sizing", "How many Select lines are required for a 16-to-1 Multiplexer?", ["2 select lines", "3 select lines", "4 select lines", "8 select lines"], 2, "Solve 2ˢ = 16 → S = 4 select lines."],
+                ["Multiplexer Sizing", "A Multiplexer has 5 select lines (S₄..S₀). What is the maximum number of data input channels it can select from?", ["10 inputs", "16 inputs", "25 inputs", "32 inputs"], 3, "With S = 5 select lines, MUX addresses 2⁵ = 32 distinct data input lines."],
+                ["MUX Tree Expansion", "How many 2-to-1 Multiplexers are required to construct a single 4-to-1 Multiplexer?", ["2 MUXes", "3 MUXes", "4 MUXes", "6 MUXes"], 1, "Two 2-to-1 MUXes in Stage 1 and one 2-to-1 MUX in Stage 2 = 3 MUXes total."],
+                ["Decoder + OR Synthesis", "How can a 3-to-8 Binary Decoder combined with a single multi-input OR gate implement any 3-variable Boolean function F(A, B, C)?", ["Connect the decoder outputs corresponding to the function's minterms (where F=1) into the OR gate", "Tie outputs to ground", "Use output Y₀", "Replace OR with Buffer"], 0, "Since an n-to-2ⁿ decoder generates all minterms, ORing active minterm pins synthesizes SOP."],
+                ["7-Segment BCD Decoder", "In a BCD-to-7-Segment Display Decoder, how many segments (a through g) are illuminated to display the decimal digit '8'?", ["5 segments", "6 segments", "7 segments (all segments ON)", "4 segments"], 2, "Displaying digit '8' turns on all 7 LED segments."],
+                ["Priority Encoder", "In an 8-to-3 Priority Encoder (inputs D₀..D₇, where D₇ has highest priority), if inputs D₂, D₅, and D₆ are HIGH simultaneously, what binary code is output?", ["010 (2)", "101 (5)", "110 (6)", "111 (7)"], 2, "Because D₆ has higher priority than D₅ and D₂, the Encoder outputs the index of 6 → 110₂."],
+                ["2-to-1 MUX Evaluation", "A 2-to-1 Multiplexer has I₀ = 1 and I₁ = 0. When Select S = 1, what is output Y?", ["0", "1", "High-Z", "Undefined"], 0, "When S = 1, MUX routes input I₁ to output Y. Since I₁ = 0, Y = 0."],
+                ["2-to-1 MUX Evaluation", "A 2-to-1 Multiplexer has I₀ = 0 and I₁ = 1. When Select S = 0, what is output Y?", ["0", "1", "High-Z", "Undefined"], 0, "When S = 0, MUX routes input I₀ to output Y. Since I₀ = 0, Y = 0."],
+                ["Tri-State Bus Contention", "What dangerous hardware condition occurs if two Tri-State Buffers driving the same wire are enabled simultaneously with opposite logic levels?", ["A direct low-resistance short circuit between V_CC and GND, risking chip damage", "The wire computes XOR", "Clock doubles", "Nothing"], 0, "Only one Tri-State Buffer may be enabled on a shared bus at any instant to prevent short circuits."],
+                ["ALU Control", "Inside a CPU's ALU, which combinational component chooses whether the final result comes from Adder, AND, OR, or XOR units?", ["A Multiplexer (MUX) controlled by ALU Opcode select lines", "Half Adder", "Parity Checker", "Tri-State Inverter"], 0, "An ALU computes arithmetic and logic results in parallel and uses a MUX controlled by Opcode bits to select the output."]
+            ];
+            t6Expansion.forEach(([sub, pr, opts, ci, exp]) => addQ(6, sub, pr, opts, ci, exp));
+
+            return bank;
+        }
+
+        const ALL_QUESTIONS = buildAllQuestions(); // Exactly 300 practice questions (50 per Tier x 6 Tiers)
+
+        // Startup integrity check
+        (function verifyQuestionBankIntegrity() {
+            const seenIds = new Set();
+            if (ALL_QUESTIONS.length !== 300) {
+                console.error(`Expected 300 questions, got ${ALL_QUESTIONS.length}`);
+            }
+            for (let t = 1; t <= 6; t++) {
+                const count = ALL_QUESTIONS.filter(q => q.tier === t).length;
+                if (count !== 50) {
+                    console.error(`Expected 50 questions in Tier ${t}, got ${count}`);
+                }
+            }
+            ALL_QUESTIONS.forEach(q => {
+                if (seenIds.has(q.id)) console.error(`Duplicate question ID: ${q.id}`);
+                seenIds.add(q.id);
+                if (!Array.isArray(q.options) || q.options.length !== 4 || q.correctIndex < 0 || q.correctIndex > 3) {
+                    console.error(`Invalid options/correctIndex on question #${q.id}`);
+                }
+            });
+        })();
+
+        /**
+         * ============================================================================
+         * STATE & PERSISTENCE
+         * ============================================================================
+         */
+        const state = {
+            progress: {},
+            previewUnlockAll: false,
+            streak: 0,
+            activeTierId: 1,
+            sessionMode: 'tier', // 'tier' | 'retry-tier' | 'retry-global'
+            sessionQueue: [],
+            sessionPointer: 0,
+            currentQuestion: null,
+            shuffledOptions: [],
+            hasAnsweredCurrent: false,
+            summaryTierId: 1,
+            newlyUnlockedTierId: null
+        };
+
+        function loadSavedState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.progress && typeof parsed.progress === 'object' && !Array.isArray(parsed.progress)) {
+                        state.progress = parsed.progress;
+                    }
+                    if (typeof parsed.previewUnlockAll === 'boolean') {
+                        state.previewUnlockAll = parsed.previewUnlockAll;
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not read saved progress:", err);
+            }
+
+            ALL_QUESTIONS.forEach(q => {
+                if (!['unanswered', 'mastered', 'incorrect'].includes(state.progress[q.id])) {
+                    state.progress[q.id] = 'unanswered';
+                }
+            });
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    progress: state.progress,
+                    previewUnlockAll: state.previewUnlockAll
+                }));
+            } catch (err) {
+                console.warn("Could not persist progress:", err);
+            }
+        }
+
+        /**
+         * ============================================================================
+         * TIER & MASTERY HELPERS
+         * ============================================================================
+         */
+        function getQuestionsForTier(tierId) {
+            return ALL_QUESTIONS.filter(q => q.tier === tierId);
+        }
+
+        function getTierStats(tierId) {
+            const qs = getQuestionsForTier(tierId);
+            const total = qs.length;
+            const mastered = qs.filter(q => state.progress[q.id] === 'mastered').length;
+            const incorrect = qs.filter(q => state.progress[q.id] === 'incorrect').length;
+            const unanswered = total - mastered - incorrect;
+            const pct = total > 0 ? Math.round((mastered / total) * 100) : 0;
+            const ratio = total > 0 ? (mastered / total) : 0;
+            return { total, mastered, incorrect, unanswered, pct, ratio };
+        }
+
+        function isTierUnlocked(tierId) {
+            if (tierId === 1) return true;
+            if (state.previewUnlockAll) return true;
+            const prevStats = getTierStats(tierId - 1);
+            return prevStats.ratio >= UNLOCK_THRESHOLD; // >= 70% (35/50)
+        }
+
+        function getGlobalMissedQuestions() {
+            return ALL_QUESTIONS.filter(q => state.progress[q.id] === 'incorrect');
+        }
+
+        function getTierMissedQuestions(tierId) {
+            return getQuestionsForTier(tierId).filter(q => state.progress[q.id] === 'incorrect');
+        }
+
+        function updateHeaderStats() {
+            const total = ALL_QUESTIONS.length;
+            const masteredTotal = ALL_QUESTIONS.filter(q => state.progress[q.id] === 'mastered').length;
+            const pct = Math.round((masteredTotal / total) * 100);
+            const globalMissed = getGlobalMissedQuestions().length;
+
+            document.getElementById('header-total-badge').textContent = `${total} Questions • ${TIERS.length} Tiers`;
+            document.getElementById('streak-count').textContent = state.streak;
+            document.getElementById('global-missed-count').textContent = globalMissed;
+            document.getElementById('global-mastery-text').textContent = `${masteredTotal} / ${total} Mastered (${pct}%)`;
+            document.getElementById('global-mastery-bar').style.width = `${pct}%`;
+
+            const unlockBtn = document.getElementById('unlock-all-toggle-btn');
+            const unlockLabel = document.getElementById('unlock-toggle-label');
+            if (state.previewUnlockAll) {
+                unlockBtn.className = 'px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold text-amber-300 transition cursor-pointer';
+                unlockLabel.textContent = 'Preview Unlock: ON';
+            } else {
+                unlockBtn.className = 'px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 transition cursor-pointer';
+                unlockLabel.textContent = 'Preview Unlock: OFF';
+            }
+        }
+
+        function togglePreviewUnlockAll() {
+            state.previewUnlockAll = !state.previewUnlockAll;
+            saveState();
+            updateHeaderStats();
+            if (!document.getElementById('hub-view').classList.contains('hidden')) {
+                renderHubView();
+            }
+        }
+
+        /**
+         * ============================================================================
+         * VIEW NAVIGATION & TIER HUB RENDERING
+         * ============================================================================
+         */
+        function switchView(viewName) {
+            document.getElementById('hub-view').classList.add('hidden');
+            document.getElementById('quiz-view').classList.add('hidden');
+            document.getElementById('summary-view').classList.add('hidden');
+
+            const navHubBtn = document.getElementById('nav-hub-btn');
+            if (viewName === 'hub') {
+                document.getElementById('hub-view').classList.remove('hidden');
+                navHubBtn.classList.add('hidden');
+                document.getElementById('header-context-label').textContent = 'Curriculum Overview • 6 Progressive Tiers (50 Qs / Tier)';
+            } else if (viewName === 'quiz') {
+                document.getElementById('quiz-view').classList.remove('hidden');
+                navHubBtn.classList.remove('hidden');
+            } else if (viewName === 'summary') {
+                document.getElementById('summary-view').classList.remove('hidden');
+                navHubBtn.classList.remove('hidden');
+            }
+        }
+
+        function goToHub() {
+            switchView('hub');
+            renderHubView();
+        }
+
+        function renderHubView() {
+            updateHeaderStats();
+
+            const globalMissed = getGlobalMissedQuestions();
+            const hubRetryBtn = document.getElementById('hub-retry-all-missed-btn');
+            if (globalMissed.length > 0) {
+                hubRetryBtn.classList.remove('hidden');
+                document.getElementById('hub-retry-all-label').textContent = `Re-Answer All Missed (${globalMissed.length})`;
+            } else {
+                hubRetryBtn.classList.add('hidden');
+            }
+
+            const grid = document.getElementById('tiers-grid');
+            grid.innerHTML = '';
+
+            TIERS.forEach(tier => {
+                const unlocked = isTierUnlocked(tier.id);
+                const stats = getTierStats(tier.id);
+                const prevTier = tier.id > 1 ? TIERS[tier.id - 2] : null;
+                const prevStats = tier.id > 1 ? getTierStats(tier.id - 1) : null;
+                const neededToUnlockPrev = prevStats ? Math.max(0, 35 - prevStats.mastered) : 0;
+
+                const card = document.createElement('div');
+                card.className = unlocked
+                    ? 'bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-3xl p-6 shadow-xl flex flex-col justify-between transition'
+                    : 'bg-slate-900/55 border border-slate-800/80 rounded-3xl p-6 flex flex-col justify-between opacity-85';
+
+                let statusChipHtml = '';
+                if (!unlocked) {
+                    statusChipHtml = `<span class="px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 text-xs font-bold flex items-center gap-1">🔒 Locked</span>`;
+                } else if (stats.pct === 100) {
+                    statusChipHtml = `<span class="px-2.5 py-1 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold">★ 100% Mastered</span>`;
+                } else if (stats.ratio >= UNLOCK_THRESHOLD) {
+                    statusChipHtml = `<span class="px-2.5 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-extrabold">✓ Passed (≥70%)</span>`;
+                } else {
+                    statusChipHtml = `<span class="px-2.5 py-1 rounded-xl ${tier.badgeBg} border text-xs font-extrabold">Unlocked</span>`;
+                }
+
+                let actionAreaHtml = '';
+                if (!unlocked) {
+                    actionAreaHtml = `
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5 text-xs text-slate-400 space-y-1">
+                            <div class="font-bold text-slate-300">Unlock Requirement:</div>
+                            <div>Master at least <strong class="text-amber-300">70% (35/50)</strong> of ${prevTier.shortName} (${neededToUnlockPrev} more correct answer${neededToUnlockPrev === 1 ? '' : 's'} needed).</div>
+                        </div>
+                    `;
+                } else {
+                    const primaryLabel = stats.mastered === 0
+                        ? `Start Tier ${tier.id} (${stats.total} Qs) →`
+                        : (stats.unanswered > 0
+                            ? `Continue Tier ${tier.id} (${stats.unanswered} Left) →`
+                            : `Practice Tier ${tier.id} Again →`);
+
+                    const missedBtnHtml = stats.incorrect > 0
+                        ? `<button onclick="startTierMissedSession(${tier.id})" class="w-full px-4 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/35 border border-rose-500/40 text-rose-300 font-extrabold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                               <span>↺</span> Re-Answer Missed (${stats.incorrect})
+                           </button>`
+                        : '';
+
+                    actionAreaHtml = `
+                        <div class="space-y-2.5">
+                            <button onclick="startTierSession(${tier.id}, 'smart')" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r ${tier.accent} hover:brightness-110 text-white font-extrabold text-xs sm:text-sm shadow-lg transition cursor-pointer">
+                                ${primaryLabel}
+                            </button>
+                            ${missedBtnHtml}
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="font-mono text-xs font-bold text-slate-400">TIER 0${tier.id} • ${stats.total} QUESTIONS</span>
+                            ${statusChipHtml}
+                        </div>
+                        <h3 class="text-lg font-black text-white leading-snug mb-1.5">${tier.name}</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-5">${tier.subtitle}</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between text-xs mb-1.5">
+                                <span class="text-slate-300 font-semibold">${stats.mastered} / ${stats.total} Mastered</span>
+                                <span class="font-mono font-bold ${stats.ratio >= UNLOCK_THRESHOLD ? 'text-emerald-400' : 'text-slate-300'}">${stats.pct}%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800 relative">
+                                <div class="h-full bg-gradient-to-r ${tier.accent} rounded-full transition-all duration-500" style="width: ${stats.pct}%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 mt-1">
+                                <span>${stats.incorrect} Missed</span>
+                                <span>70% (35/50) unlocks Tier ${tier.id < 6 ? tier.id + 1 : 'Mastery'}</span>
+                            </div>
+                        </div>
+
+                        ${actionAreaHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        /**
+         * ============================================================================
+         * QUIZ SESSION & RE-ANSWER ENGINE
+         * ============================================================================
+         */
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function startTierSession(tierId, mode = 'smart') {
+            if (!isTierUnlocked(tierId)) return;
+
+            const tierQs = getQuestionsForTier(tierId);
+            let queue = [];
+
+            if (mode === 'smart') {
+                const unanswered = tierQs.filter(q => state.progress[q.id] === 'unanswered');
+                const incorrect = tierQs.filter(q => state.progress[q.id] === 'incorrect');
+                if (unanswered.length > 0 || incorrect.length > 0) {
+                    queue = [...unanswered, ...incorrect];
+                } else {
+                    queue = [...tierQs];
+                }
+            } else {
+                queue = [...tierQs];
+            }
+
+            state.activeTierId = tierId;
+            state.sessionMode = 'tier';
+            state.sessionQueue = queue;
+            state.sessionPointer = 0;
+
+            switchView('quiz');
+            renderCurrentQuestion();
+        }
+
+        function startTierMissedSession(tierId) {
+            const missed = getTierMissedQuestions(tierId);
+            if (missed.length === 0) return;
+
+            closeMissedModal();
+            state.activeTierId = tierId;
+            state.sessionMode = 'retry-tier';
+            state.sessionQueue = missed;
+            state.sessionPointer = 0;
+
+            switchView('quiz');
+            renderCurrentQuestion();
+        }
+
+        function startGlobalMissedSession() {
+            const missed = getGlobalMissedQuestions();
+            if (missed.length === 0) return;
+
+            closeMissedModal();
+            state.activeTierId = missed[0].tier;
+            state.sessionMode = 'retry-global';
+            state.sessionQueue = missed;
+            state.sessionPointer = 0;
+
+            switchView('quiz');
+            renderCurrentQuestion();
+        }
+
+        function jumpToSingleQuestion(questionId) {
+            const target = ALL_QUESTIONS.find(q => q.id === questionId);
+            if (!target) return;
+
+            closeMissedModal();
+            state.activeTierId = target.tier;
+            state.sessionMode = 'retry-tier';
+            state.sessionQueue = [target];
+            state.sessionPointer = 0;
+
+            switchView('quiz');
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const q = state.sessionQueue[state.sessionPointer];
+            if (!q) {
+                showTierSummary(state.activeTierId);
+                return;
+            }
+
+            state.currentQuestion = q;
+            state.hasAnsweredCurrent = false;
+
+            const card = document.getElementById('question-card');
+            card.classList.remove('animate-pop-in');
+            void card.offsetWidth;
+            card.classList.add('animate-pop-in');
+
+            document.getElementById('explanation-panel').classList.add('hidden');
+
+            const tierObj = TIERS.find(t => t.id === q.tier);
+            document.getElementById('session-tier-pill').textContent = `Tier ${q.tier}`;
+
+            if (state.sessionMode === 'retry-tier' || state.sessionMode === 'retry-global') {
+                document.getElementById('session-mode-text').innerHTML =
+                    `<span class="text-rose-300 font-extrabold">↺ Re-Answering Missed Questions</span> • ${tierObj.shortName}`;
+                document.getElementById('header-context-label').textContent = `Missed Questions Review Mode • Self-Paced`;
+            } else {
+                document.getElementById('session-mode-text').textContent = tierObj.name;
+                document.getElementById('header-context-label').textContent = `${tierObj.name} • Self-Paced`;
+            }
+
+            const tierMissedCount = getTierMissedQuestions(q.tier).length;
+            const switchMissedBtn = document.getElementById('session-switch-missed-btn');
+            if (tierMissedCount > 0) {
+                switchMissedBtn.classList.remove('hidden');
+                document.getElementById('session-tier-missed-count').textContent = tierMissedCount;
+            } else {
+                switchMissedBtn.classList.add('hidden');
+            }
+
+            document.getElementById('q-counter-badge').textContent =
+                `Question ${state.sessionPointer + 1} of ${state.sessionQueue.length}`;
+            document.getElementById('q-subtopic-badge').textContent = q.subtopic;
+            document.getElementById('q-id-badge').textContent = `#${q.id}`;
+
+            const statusPill = document.getElementById('q-status-pill');
+            const prevStat = state.progress[q.id];
+            if (prevStat === 'incorrect') {
+                statusPill.textContent = '↺ Re-Attempting Missed Question';
+                statusPill.className = 'px-3 py-1 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold';
+            } else if (prevStat === 'mastered') {
+                statusPill.textContent = '✓ Previously Mastered';
+                statusPill.className = 'px-3 py-1 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold';
+            } else {
+                statusPill.textContent = 'Self-Paced • No Timer';
+                statusPill.className = 'px-3 py-1 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold';
+            }
+
+            document.getElementById('q-prompt').textContent = q.prompt;
+
+            const diagramBox = document.getElementById('q-diagram-box');
+            const diagramSvg = document.getElementById('q-diagram-svg');
+            const diagramCap = document.getElementById('q-diagram-caption');
+            if (q.diagramSvg) {
+                diagramBox.classList.remove('hidden');
+                diagramSvg.innerHTML = q.diagramSvg;
+                diagramCap.textContent = q.diagramCaption || '';
+            } else {
+                diagramBox.classList.add('hidden');
+                diagramSvg.innerHTML = '';
+            }
+
+            const indexedOptions = q.options.map((text, idx) => ({
+                text,
+                isCorrect: idx === q.correctIndex
+            }));
+            state.shuffledOptions = shuffleArray(indexedOptions);
+
+            const grid = document.getElementById('q-options-grid');
+            grid.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+
+            state.shuffledOptions.forEach((optObj, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = `opt-tile-${idx}`;
+                btn.className = `tile-btn tile-${idx % 4} w-full text-left p-4 sm:p-5 rounded-2xl text-white font-semibold text-sm sm:text-base flex items-center gap-3.5 cursor-pointer relative`;
+                btn.onclick = () => submitOptionChoice(idx);
+
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-black/25 flex items-center justify-center font-mono font-black text-sm shrink-0 border border-white/15">
+                        ${letters[idx]}
+                    </span>
+                    <span class="flex-1 leading-snug">${optObj.text}</span>
+                    <span id="opt-mark-${idx}" class="text-lg font-black hidden"></span>
+                `;
+                grid.appendChild(btn);
+            });
+
+            updateHeaderStats();
+        }
+
+        function submitOptionChoice(chosenIdx) {
+            if (state.hasAnsweredCurrent) return;
+            state.hasAnsweredCurrent = true;
+
+            const q = state.currentQuestion;
+            const chosenOpt = state.shuffledOptions[chosenIdx];
+            const isCorrect = chosenOpt.isCorrect;
+
+            const nextTierId = q.tier + 1;
+            const wasNextUnlockedBefore = nextTierId <= TIERS.length ? isTierUnlocked(nextTierId) : true;
+
+            if (isCorrect) {
+                state.progress[q.id] = 'mastered';
+                state.streak += 1;
+            } else {
+                state.progress[q.id] = 'incorrect';
+                state.streak = 0;
+            }
+            saveState();
+
+            const isNextUnlockedNow = nextTierId <= TIERS.length ? isTierUnlocked(nextTierId) : true;
+            if (!wasNextUnlockedBefore && isNextUnlockedNow) {
+                state.newlyUnlockedTierId = nextTierId;
+            }
+
+            let correctOptionText = '';
+            state.shuffledOptions.forEach((opt, idx) => {
+                const btn = document.getElementById(`opt-tile-${idx}`);
+                const mark = document.getElementById(`opt-mark-${idx}`);
+                btn.disabled = true;
+                btn.classList.remove('cursor-pointer');
+
+                if (opt.isCorrect) {
+                    correctOptionText = opt.text;
+                    btn.classList.add('tile-correct');
+                    mark.textContent = '✓';
+                    mark.classList.remove('hidden');
+                } else if (idx === chosenIdx && !isCorrect) {
+                    btn.classList.add('tile-wrong', 'animate-shake');
+                    mark.textContent = '✕';
+                    mark.classList.remove('hidden');
+                } else {
+                    btn.classList.add('tile-dimmed');
+                }
+            });
+
+            const statusPill = document.getElementById('q-status-pill');
+            if (isCorrect) {
+                statusPill.textContent = '✓ Mastered!';
+                statusPill.className = 'px-3 py-1 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold';
+            } else {
+                statusPill.textContent = '✕ Added to Missed Queue';
+                statusPill.className = 'px-3 py-1 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-extrabold';
+            }
+
+            const expPanel = document.getElementById('explanation-panel');
+            const fbIcon = document.getElementById('fb-icon');
+            const fbTitle = document.getElementById('fb-title');
+            const fbSub = document.getElementById('fb-subtitle');
+            const fbText = document.getElementById('fb-explanation-text');
+            const contLabel = document.getElementById('continue-btn-label');
+
+            expPanel.classList.remove('hidden', 'bg-emerald-950/95', 'border-emerald-500/50', 'bg-rose-950/95', 'border-rose-500/50');
+
+            if (isCorrect) {
+                expPanel.classList.add('bg-emerald-950/95', 'border-emerald-500/50');
+                fbIcon.className = 'w-11 h-11 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center text-xl font-black shrink-0';
+                fbIcon.textContent = '✓';
+                fbTitle.textContent = state.newlyUnlockedTierId === nextTierId
+                    ? `Correct! 🎉 Tier ${nextTierId} Unlocked!`
+                    : 'Correct! Question Mastered';
+                fbTitle.className = 'font-extrabold text-lg text-emerald-300';
+                fbSub.textContent = 'Read the truth-logic explanation below, then click Continue when ready.';
+            } else {
+                expPanel.classList.add('bg-rose-950/95', 'border-rose-500/50');
+                fbIcon.className = 'w-11 h-11 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-xl font-black shrink-0';
+                fbIcon.textContent = '✕';
+                fbTitle.textContent = 'Incorrect — Saved to Missed Questions';
+                fbTitle.className = 'font-extrabold text-lg text-rose-300';
+                fbSub.textContent = `Correct Answer: ${correctOptionText} • You can re-answer this question anytime!`;
+            }
+
+            fbText.textContent = q.explanation;
+
+            const hasMoreInQueue = state.sessionPointer + 1 < state.sessionQueue.length;
+            if (hasMoreInQueue) {
+                contLabel.textContent = (state.sessionMode === 'retry-tier' || state.sessionMode === 'retry-global')
+                    ? 'Continue to Next Missed Question'
+                    : 'Continue to Next Question';
+            } else {
+                contLabel.textContent = 'View Tier Mastery Report';
+            }
+
+            const tierMissedCount = getTierMissedQuestions(q.tier).length;
+            const switchMissedBtn = document.getElementById('session-switch-missed-btn');
+            if (tierMissedCount > 0) {
+                switchMissedBtn.classList.remove('hidden');
+                document.getElementById('session-tier-missed-count').textContent = tierMissedCount;
+            } else {
+                switchMissedBtn.classList.add('hidden');
+            }
+
+            updateHeaderStats();
+
+            setTimeout(() => {
+                expPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 60);
+        }
+
+        function handleContinueNext() {
+            if (!state.hasAnsweredCurrent) return;
+
+            state.sessionPointer += 1;
+            if (state.sessionPointer < state.sessionQueue.length) {
+                renderCurrentQuestion();
+            } else if (state.sessionMode === 'retry-global') {
+                goToHub();
+            } else {
+                showTierSummary(state.activeTierId);
+            }
+        }
+
+        /**
+         * ============================================================================
+         * TIER SUMMARY & AUDIT VIEW
+         * ============================================================================
+         */
+        function showTierSummary(tierId) {
+            state.summaryTierId = tierId;
+            switchView('summary');
+            updateHeaderStats();
+
+            const tierObj = TIERS.find(t => t.id === tierId);
+            const stats = getTierStats(tierId);
+
+            document.getElementById('header-context-label').textContent = `${tierObj.name} • Mastery Report`;
+            document.getElementById('summary-tier-badge').textContent = `Tier ${tierId} Mastery Report`;
+            document.getElementById('summary-heading').textContent = tierObj.name;
+            document.getElementById('summary-pct').textContent = `${stats.pct}%`;
+            document.getElementById('summary-fraction').textContent = `${stats.mastered} / ${stats.total} Mastered`;
+
+            const celebBox = document.getElementById('tier-unlock-celebration');
+            const nextTierId = tierId + 1;
+            if (nextTierId <= TIERS.length && isTierUnlocked(nextTierId) && (state.newlyUnlockedTierId === nextTierId || stats.ratio >= UNLOCK_THRESHOLD)) {
+                const nextTierObj = TIERS.find(t => t.id === nextTierId);
+                celebBox.classList.remove('hidden');
+                document.getElementById('unlocked-tier-title').textContent = nextTierObj.name;
+                document.getElementById('start-unlocked-tier-btn').onclick = () => {
+                    state.newlyUnlockedTierId = null;
+                    startTierSession(nextTierId, 'smart');
+                };
+            } else {
+                celebBox.classList.add('hidden');
+            }
+            state.newlyUnlockedTierId = null;
+
+            const reanswerBtn = document.getElementById('summary-reanswer-missed-btn');
+            if (stats.incorrect > 0) {
+                reanswerBtn.classList.remove('hidden');
+                document.getElementById('summary-reanswer-label').textContent = `Re-Answer Missed Questions (${stats.incorrect})`;
+            } else {
+                reanswerBtn.classList.add('hidden');
+            }
+
+            const qList = document.getElementById('summary-q-list');
+            qList.innerHTML = '';
+
+            const tierQs = getQuestionsForTier(tierId);
+            tierQs.forEach((q, idx) => {
+                const st = state.progress[q.id];
+                let badge = '';
+                let btnLabel = 'Practice';
+                let btnStyle = 'bg-slate-800 hover:bg-slate-700 text-slate-200';
+
+                if (st === 'mastered') {
+                    badge = `<span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-extrabold">✓ Mastered</span>`;
+                    btnLabel = 'Review';
+                } else if (st === 'incorrect') {
+                    badge = `<span class="px-2.5 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-extrabold">✕ Missed</span>`;
+                    btnLabel = 'Re-Answer →';
+                    btnStyle = 'bg-rose-600 hover:bg-rose-500 text-white';
+                } else {
+                    badge = `<span class="px-2.5 py-0.5 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold">Unanswered</span>`;
+                }
+
+                const row = document.createElement('div');
+                row.className = 'bg-slate-950/75 border border-slate-800 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                row.innerHTML = `
+                    <div class="space-y-1 flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-mono text-xs font-bold text-cyan-300">Q${idx + 1} (#${q.id})</span>
+                            ${badge}
+                            <span class="text-xs text-slate-400">• ${q.subtopic}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-100 font-medium">${q.prompt}</p>
+                    </div>
+                    <button onclick="jumpToSingleQuestion(${q.id})" class="px-4 py-2 rounded-xl ${btnStyle} text-xs font-extrabold shrink-0 transition cursor-pointer self-start sm:self-center">
+                        ${btnLabel}
+                    </button>
+                `;
+                qList.appendChild(row);
+            });
+        }
+
+        /**
+         * ============================================================================
+         * MISSED QUESTIONS DRAWER MODAL & RESET MODAL
+         * ============================================================================
+         */
+        function openMissedModal(filterTierId = null) {
+            const modal = document.getElementById('missed-modal');
+            const listEl = document.getElementById('missed-modal-list');
+            const startAllBtn = document.getElementById('modal-start-retry-queue-btn');
+            const titleEl = document.getElementById('missed-modal-title');
+
+            const missedQs = filterTierId
+                ? getTierMissedQuestions(filterTierId)
+                : getGlobalMissedQuestions();
+
+            titleEl.textContent = filterTierId
+                ? `Tier ${filterTierId} Missed Questions (${missedQs.length})`
+                : `All Missed Questions Across Tiers (${missedQs.length})`;
+
+            listEl.innerHTML = '';
+
+            if (missedQs.length === 0) {
+                startAllBtn.classList.add('hidden');
+                listEl.innerHTML = `
+                    <div class="text-center py-10 px-4 bg-slate-950/70 border border-slate-800 rounded-2xl">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <p class="font-extrabold text-white text-sm">No Missed Questions Here!</p>
+                        <p class="text-xs text-slate-400 mt-1">Whenever you miss a question, it is saved right here so you can re-attempt it anytime.</p>
+                    </div>
+                `;
+            } else {
+                startAllBtn.classList.remove('hidden');
+                startAllBtn.onclick = () => {
+                    if (filterTierId) {
+                        startTierMissedSession(filterTierId);
+                    } else {
+                        startGlobalMissedSession();
+                    }
+                };
+
+                missedQs.forEach(q => {
+                    const row = document.createElement('div');
+                    row.className = 'bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 flex items-center justify-between gap-3';
+                    row.innerHTML = `
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-300 font-mono text-[11px] font-bold">Tier ${q.tier}</span>
+                                <span class="font-mono text-xs font-bold text-rose-400">#${q.id}</span>
+                                <span class="text-xs text-slate-400">${q.subtopic}</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-100 font-medium truncate">${q.prompt}</p>
+                        </div>
+                        <button onclick="jumpToSingleQuestion(${q.id})" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold shrink-0 transition cursor-pointer">
+                            Re-Answer →
+                        </button>
+                    `;
+                    listEl.appendChild(row);
+                });
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeMissedModal() {
+            document.getElementById('missed-modal').classList.add('hidden');
+        }
+
+        function openResetConfirmModal() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function closeResetConfirmModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
+        function executeFullReset() {
+            ALL_QUESTIONS.forEach(q => {
+                state.progress[q.id] = 'unanswered';
+            });
+            state.streak = 0;
+            state.previewUnlockAll = false;
+            state.activeTierId = 1;
+            state.sessionMode = 'tier';
+            state.sessionQueue = [];
+            state.sessionPointer = 0;
+            state.currentQuestion = null;
+            state.hasAnsweredCurrent = false;
+            state.newlyUnlockedTierId = null;
+            saveState();
+            closeResetConfirmModal();
+            goToHub();
+        }
+
+        /**
+         * ============================================================================
+         * KEYBOARD ACCESSIBILITY & INITIALIZATION
+         * ============================================================================
+         */
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('quiz-view').classList.contains('hidden')) return;
+            if (!document.getElementById('missed-modal').classList.contains('hidden')) return;
+
+            const key = e.key.toUpperCase();
+            if (!state.hasAnsweredCurrent) {
+                if (key === '1' || key === 'A') submitOptionChoice(0);
+                else if (key === '2' || key === 'B') submitOptionChoice(1);
+                else if (key === '3' || key === 'C') submitOptionChoice(2);
+                else if (key === '4' || key === 'D') submitOptionChoice(3);
+            } else {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleContinueNext();
+                }
+            }
+        });
+
+        window.onload = function () {
+            loadSavedState();
+            goToHub();
+        };
+    </script>
+</body>
+</html>
